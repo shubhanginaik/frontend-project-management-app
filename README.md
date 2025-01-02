@@ -1,5 +1,7 @@
 # Frontend Project
 
+## This is individual frontend project developed by Shubhangi Naik
+
 The current template tech stack: React, TypeScript, Tailwind, Shadcn, tanstack/react-query.
 
 ## Requirements
