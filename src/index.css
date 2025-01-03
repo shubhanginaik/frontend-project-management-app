@@ -74,3 +74,12 @@
     @apply bg-background text-foreground;
   }
 }
+.light-theme {
+  background-color: white;
+  color: black;
+}
+
+.dark-theme {
+  background-color: #1f2937;
+  color: white;
+}

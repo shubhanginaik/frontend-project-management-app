@@ -1,5 +1,5 @@
+import { Button } from "../components/ui/Button"
 import { useState } from "react"
-import { Button } from "../components/ui/button"
 
 export function Home() {
   const [message, setMessage] = useState("")
