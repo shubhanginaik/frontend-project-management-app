@@ -1,5 +1,4 @@
 .sidebar {
-  width: 250px;
   background-color: #f4f5f7;
   padding: 20px;
   border-right: 1px solid #dcdcdc;
@@ -9,6 +8,7 @@
   font-size: 16px;
   color: #333;
   margin-bottom: 10px;
+  margin-top: 0;
 }
 
 .sidebar ul {
@@ -19,6 +19,7 @@
 
 .sidebar li {
   padding: 8px 0;
+  margin-bottom: 1rem;
   color: #555;
   cursor: pointer;
 }
@@ -26,4 +27,15 @@
 .sidebar li:hover {
   color: #000;
   font-weight: bold;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #333;
+}
+
+.sidebar-icon {
+  margin-right: 0.5rem;
 }

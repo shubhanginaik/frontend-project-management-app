@@ -1,5 +1,7 @@
 import React from "react"
 import "./Sidebar.css"
+import { FaTrello } from "react-icons/fa"
+import { Link } from "react-router-dom"
 
 export function Sidebar() {
   return (
@@ -9,7 +11,13 @@ export function Sidebar() {
         <li>
           Workspce: Which will show all the projects onclick(Allow 2-3 projects in a workspace)
         </li>
-        <li>Projects: has same functionality as Workspace</li>
+        <li>
+          <h2>Boards</h2>
+          <Link to="/boards" className="sidebar-link">
+            <FaTrello className="sidebar-icon" />
+            Boards
+          </Link>
+        </li>
         <li>Members: Which will show allthe members of the workpaces</li>
         <li>
           Your Projects:

@@ -1,6 +1,7 @@
 import React from "react"
 import { useTheme } from "../../context/ThemeContext"
 import "./Header.css"
+import { Link } from "react-router-dom"
 
 export function Header() {
   const { theme, toggleTheme } = useTheme()
@@ -8,7 +9,10 @@ export function Header() {
   return (
     <header className="header">
       <div className="logo-container">
-        <p className="logo-name">VisionBoard</p>
+        <img src="/logo.svg" alt="Logo" className="logo-image" />
+        <Link to="/" className="logo-link">
+          <span className="logo-name">VisionBoard</span>
+        </Link>
       </div>
 
       <div className="dropdown-container">
