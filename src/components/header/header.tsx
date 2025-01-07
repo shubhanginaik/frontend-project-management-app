@@ -1,8 +1,8 @@
 import React from "react"
-import { useTheme } from "../context/ThemeContext"
+import { useTheme } from "../../context/ThemeContext"
 import "./Header.css"
 
-const Header = () => {
+export function Header() {
   const { theme, toggleTheme } = useTheme()
 
   return (
@@ -20,14 +20,6 @@ const Header = () => {
             <a href="#">Workspace 3</a>
           </div>
         </div>
-        <div className="dropdown">
-          Projects
-          <div className="dropdown-content">
-            <a href="#">Project 1</a>
-            <a href="#">Project 2</a>
-            <a href="#">Project 3</a>
-          </div>
-        </div>
       </div>
       <input type="text" placeholder="Search..." />
       <div className="user-profile">
@@ -43,5 +35,3 @@ const Header = () => {
     </header>
   )
 }
-
-export default Header

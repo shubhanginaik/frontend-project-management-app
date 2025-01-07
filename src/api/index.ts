@@ -3,7 +3,7 @@ import { Import } from "lucide-react"
 import { env } from "process"
 
 //const isDevelopment = import.meta.env.MODE === "development"
-let baseURL = import.meta.env.VITE_API_URL
+const baseURL = import.meta.env.VITE_API_URL
 axios.defaults.headers.post["Content-Type"] = "application/json"
 
 // if (!isDevelopment) {
@@ -17,25 +17,20 @@ const api = axios.create({
 // Add an interceptor to include the token in the request headers
 api.interceptors.request.use(
   (config) => {
-    const token = import.meta.env.VITE_JWT_SECRET
+    const token = localStorage.getItem("token")
+    const workspaceId = localStorage.getItem("workspaceId")
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+
+    if (workspaceId) {
+      config.headers["Workspace-Id"] = workspaceId
+    }
+
     return config
   },
   (error) => {
-    console.error("Error in request interceptor", error)
-    return Promise.reject(error)
-  }
-)
-
-// use this to handle errors gracefully
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response && error.response.status === 500) {
-      throw new Error(error.response.data)
-    }
     return Promise.reject(error)
   }
 )
