@@ -1,12 +1,13 @@
 .sidebar {
   background-color: #f4f5f7;
   padding: 20px;
-  border-right: 1px solid #dcdcdc;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .sidebar h2 {
   font-size: 16px;
-  color: #333;
+  color: var(--text-color);
   margin-bottom: 10px;
   margin-top: 0;
 }
@@ -20,7 +21,7 @@
 .sidebar li {
   padding: 8px 0;
   margin-bottom: 1rem;
-  color: #555;
+  color: var(--text-color);
   cursor: pointer;
 }
 

@@ -12,7 +12,7 @@ export function Home() {
       <div className="boards-container">
         {boards.map((board) => (
           <Link to={`/board/${board.id}`} key={board.id} className="board-link">
-            <Board key={board.id} id={board.id} name={board.name} />
+            <Board key={board.id} id={board.id} name={board.name} link={`/board/${board.id}`} />
           </Link>
         ))}
       </div>

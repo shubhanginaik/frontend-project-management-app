@@ -3,11 +3,18 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/context/AuthContext"
+import api from "@/api" // Import the api instance
+
 export function LoginForm() {
   const [state, setState] = useState({
     email: "",
     password: ""
   })
+
+  const [error, setError] = useState<string | null>(null)
+  const { setToken } = useAuth()
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target
     setState((prev) => ({
@@ -15,10 +22,38 @@ export function LoginForm() {
       [name]: value
     }))
   }
-  const handleSubmit = (e: FormEvent) => {
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    console.log(state)
+    try {
+      console.log("before post", state)
+      console.log("before api", api)
+      const response = await api.post("/auth/login", state) // Corrected API call
+      console.log("after api", response)
+
+      if (response && response.data && response.data.data && response.data.data.accessToken) {
+        const token = response.data.data.accessToken
+        setToken(token)
+        localStorage.setItem("token", token)
+        setError(null)
+      } else {
+        setError("Unexpected response structure")
+      }
+    } catch (err: any) {
+      console.error("API call error", err)
+      if (err.response) {
+        console.error("Response data:", err.response.data)
+        console.error("Response status:", err.response.status)
+        console.error("Response headers:", err.response.headers)
+      }
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message)
+      } else {
+        setError("An unexpected error occurred")
+      }
+    }
   }
+
   return (
     <Card className="mx-auto max-w-sm">
       <CardHeader className="space-y-1">
@@ -42,6 +77,7 @@ export function LoginForm() {
             <Label htmlFor="password">Password</Label>
             <Input onChange={handleChange} id="password" name="password" type="password" required />
           </div>
+          {error && <p className="text-red-500">{error}</p>}
           <Button type="submit" className="w-full">
             Login
           </Button>

@@ -7,9 +7,14 @@ export function Sidebar() {
   return (
     <div className="sidebar">
       <h2>Sidebar</h2>
+
+      <p>Workspce: Which will show all the projects onclick(Allow 2-3 projects in a workspace)</p>
       <ul>
         <li>
-          Workspce: Which will show all the projects onclick(Allow 2-3 projects in a workspace)
+          <Link to="/">Home</Link>
+        </li>
+        <li>
+          <Link to="/dashboard">Dashboard</Link>
         </li>
         <li>
           <h2>Boards</h2>
@@ -18,6 +23,13 @@ export function Sidebar() {
             Boards
           </Link>
         </li>
+        <li>
+          <Link to="/role">Role Management</Link>
+        </li>
+        <li>
+          <Link to="/login">Login</Link>
+        </li>
+
         <li>Members: Which will show allthe members of the workpaces</li>
         <li>
           Your Projects:

@@ -1,14 +1,23 @@
 import React from "react"
-import { Link } from "react-router-dom"
-import "./Board.css"
+import { useNavigate } from "react-router-dom"
 
-const Board = ({ name, id }: { name: string; id: string }) => {
+interface BoardProps {
+  id: string
+  name: string
+  link: string
+}
+
+const Board: React.FC<BoardProps> = ({ id, name, link }) => {
+  const navigate = useNavigate()
+
+  const handleClick = () => {
+    navigate(link)
+  }
+
   return (
-    <Link to={`/board/${id}`} className="board">
-      <div className="board-content">
-        <h3>{name}</h3>
-      </div>
-    </Link>
+    <div className="board" onClick={handleClick}>
+      <h3>{name}</h3>
+    </div>
   )
 }
 

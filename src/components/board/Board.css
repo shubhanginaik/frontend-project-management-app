@@ -15,6 +15,7 @@
 
 .board:hover {
   background-color: #026aa7;
+  cursor: pointer;
 }
 
 .board-content h3 {
