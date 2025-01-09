@@ -7,6 +7,7 @@ import { KanbanBoard } from "../board/kanban-board"
 import { DashboardPage } from "@/pages/dashboard"
 import { RoleManagement } from "@/pages/dashboard/role-management"
 import { BoardsPage } from "@/pages/dashboard/BoardsPage"
+import { SignupPage } from "@/pages/signup"
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { token } = useAuth()
@@ -18,6 +19,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
       <Route
         path="/board/:id"
         element={

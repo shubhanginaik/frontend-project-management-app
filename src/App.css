@@ -21,7 +21,7 @@
   flex: 0 0 250px;
 }
 
-.main-content {
+.main-content div {
   flex: 1;
   overflow-y: auto;
   background-color: var(--background-color);
