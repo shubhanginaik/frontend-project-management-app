@@ -1,7 +1,7 @@
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
 }
 
@@ -10,20 +10,48 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
+  width: 100%;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
 .layout {
   display: flex;
   flex: 1;
+  width: 100%;
 }
 
 .sidebar {
   flex: 0 0 250px;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }
 
-.main-content div {
+.main-content {
   flex: 1;
   overflow-y: auto;
   background-color: var(--background-color);
   color: var(--text-color);
+  padding: 1rem;
+}
+
+/* Ensure that on smaller screens, the layout becomes vertical */
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    flex: none;
+    width: 100%;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header > div {
+    margin-bottom: 1rem;
+  }
 }

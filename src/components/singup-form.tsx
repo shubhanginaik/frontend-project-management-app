@@ -4,7 +4,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import api from "@/api" // Import the api instance
+import { useTheme } from "@/context/ThemeContext"
+import api from "@/api"
 
 export function SignupForm() {
   const [state, setState] = useState({
@@ -16,8 +17,8 @@ export function SignupForm() {
   })
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-
   const navigate = useNavigate()
+  const { theme } = useTheme()
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -37,7 +38,7 @@ export function SignupForm() {
     }
 
     try {
-      const signupData = { email, password, firstName, lastName } // Exclude confirmPassword
+      const signupData = { email, password, firstName, lastName }
       console.log("Sending signup data:", signupData)
       const response = await api.post("/auth/signup", signupData)
       console.log("API response:", response)
@@ -46,8 +47,8 @@ export function SignupForm() {
         setError(null)
         setSuccess("User added successfully! Redirecting to login...")
         setTimeout(() => {
-          navigate("/login") // Redirect to login page after a short delay
-        }, 2000) // Adjust the delay as needed
+          navigate("/login")
+        }, 2000)
       } else {
         setError("Unexpected response structure")
       }
@@ -67,77 +68,77 @@ export function SignupForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
-          <CardDescription>Create your account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <Input
-                id="firstName"
-                name="firstName"
-                type="text"
-                value={state.firstName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <Input
-                id="lastName"
-                name="lastName"
-                type="text"
-                value={state.lastName}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={state.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={state.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={state.confirmPassword}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            {error && <p className="text-red-500">{error}</p>}
-            {success && <p className="text-green-500">{success}</p>}
-            <Button type="submit" className="w-full">
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
+        <CardDescription>Create your account</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <div className="space-y-2">
+            <Label htmlFor="firstName">First Name</Label>
+            <Input
+              id="firstName"
+              name="firstName"
+              type="text"
+              value={state.firstName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName">Last Name</Label>
+            <Input
+              id="lastName"
+              name="lastName"
+              type="text"
+              value={state.lastName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              value={state.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              value={state.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              value={state.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          {error && <p className="text-destructive">{error}</p>}
+          {success && <p className="text-success">{success}</p>}
+          <div className="flex justify-center">
+            <Button type="submit" className="px-8" variant={theme === "dark" ? "orange" : "blue"}>
               Sign Up
             </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

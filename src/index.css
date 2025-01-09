@@ -13,6 +13,7 @@
   --background-color: white;
   --text-color: black;
   --button-background-color: #007bff;
+  --button-border-radius: 5px;
   --button-text-color: white;
 }
 
@@ -20,19 +21,30 @@
   --background-color: rgb(23, 11, 54);
   --text-color: white;
   --button-background-color: orange;
+  --button-border-radius: 5px;
   --button-text-color: white;
 }
 
 body {
   background-color: var(--background-color);
   color: var(--text-color);
+  @apply w-full min-h-screen;
 }
 
 button {
   background-color: var(--button-background-color);
   color: var(--button-text-color);
+  border-radius: var(--button-border-radius);
+}
+.app-container {
+  @apply w-full max-w-full mx-auto px-4;
 }
 
+@media (min-width: 1280px) {
+  .app-container {
+    @apply max-w-7xl;
+  }
+}
 /* Additional global styles */
 @layer base {
   * {

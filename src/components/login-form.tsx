@@ -4,7 +4,8 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/context/AuthContext"
-import api from "@/api" // Import the api instance
+import { useTheme } from "@/context/ThemeContext"
+import api from "@/api"
 
 export function LoginForm() {
   const [state, setState] = useState({
@@ -14,6 +15,7 @@ export function LoginForm() {
 
   const [error, setError] = useState<string | null>(null)
   const { setToken } = useAuth()
+  const { theme } = useTheme()
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target
@@ -28,7 +30,7 @@ export function LoginForm() {
     try {
       console.log("before post", state)
       console.log("before api", api)
-      const response = await api.post("/auth/login", state) // Corrected API call
+      const response = await api.post("/auth/login", state)
       console.log("after api", response)
 
       if (response && response.data && response.data.data && response.data.data.accessToken) {
@@ -78,9 +80,11 @@ export function LoginForm() {
             <Input onChange={handleChange} id="password" name="password" type="password" required />
           </div>
           {error && <p className="text-red-500">{error}</p>}
-          <Button type="submit" className="w-full">
-            Login
-          </Button>
+          <div className="flex justify-center">
+            <Button type="submit" className="px-8" variant={theme === "dark" ? "orange" : "blue"}>
+              Login
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>
