@@ -1,11 +1,10 @@
 import { ChangeEvent, FormEvent, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/context/AuthContext"
-import { useTheme } from "@/context/ThemeContext"
-import api from "@/api"
 
 export function LoginForm() {
   const [state, setState] = useState({
@@ -14,8 +13,8 @@ export function LoginForm() {
   })
 
   const [error, setError] = useState<string | null>(null)
-  const { setToken } = useAuth()
-  const { theme } = useTheme()
+  const { login } = useAuth()
+  const navigate = useNavigate()
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target
@@ -27,32 +26,13 @@ export function LoginForm() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
+    setError(null)
     try {
-      console.log("before post", state)
-      console.log("before api", api)
-      const response = await api.post("/auth/login", state)
-      console.log("after api", response)
-
-      if (response && response.data && response.data.data && response.data.data.accessToken) {
-        const token = response.data.data.accessToken
-        setToken(token)
-        localStorage.setItem("token", token)
-        setError(null)
-      } else {
-        setError("Unexpected response structure")
-      }
+      await login(state.email, state.password)
+      // No navigation here, as workspaces are fetched in the background
     } catch (err: any) {
-      console.error("API call error", err)
-      if (err.response) {
-        console.error("Response data:", err.response.data)
-        console.error("Response status:", err.response.status)
-        console.error("Response headers:", err.response.headers)
-      }
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message)
-      } else {
-        setError("An unexpected error occurred")
-      }
+      console.error("Login error:", err)
+      setError(err.response?.data?.message || "An unexpected error occurred")
     }
   }
 
@@ -81,7 +61,7 @@ export function LoginForm() {
           </div>
           {error && <p className="text-red-500">{error}</p>}
           <div className="flex justify-center">
-            <Button type="submit" className="px-8" variant={theme === "dark" ? "orange" : "blue"}>
+            <Button type="submit" className="px-8" variant="blue">
               Login
             </Button>
           </div>

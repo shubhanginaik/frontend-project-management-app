@@ -1,4 +1,5 @@
 import axios from "axios"
+import jwtDecode from "jwt-decode"
 
 //const isDevelopment = import.meta.env.MODE === "development"
 const api = axios.create({
@@ -17,16 +18,21 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token")
-    // const workspaceId = localStorage.getItem("workspaceId")
 
-    // Skip adding the Authorization header for the login and signup requests
-    if (token && !config.url?.includes("/auth/login") && !config.url?.includes("/auth/signup")) {
-      config.headers.Authorization = `Bearer ${token}`
+    if (token) {
+      const decodedToken: any = jwtDecode(token)
+      const currentTime = Date.now() / 1000
+
+      if (decodedToken.exp < currentTime) {
+        // Token is expired
+        localStorage.removeItem("token")
+        return Promise.reject(new Error("Token is expired"))
+      }
+      // Skip adding the Authorization header for the login and signup requests
+      if (token && !config.url?.includes("/auth/login") && !config.url?.includes("/auth/signup")) {
+        config.headers.Authorization = `Bearer ${token}`
+      }
     }
-
-    // if (workspaceId) {
-    //   config.headers["Workspace-Id"] = workspaceId
-    // }
 
     return config
   },

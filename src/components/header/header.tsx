@@ -1,15 +1,10 @@
-import React from "react"
 import { Link } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "@/context/ThemeContext"
+import { LogoutButton } from "../LogoutButton"
+import { WorkspacesPage } from "@/pages/dashboard/workspaceDash/WorkspacePage"
 
 export function Header() {
   const { theme, toggleTheme } = useTheme()
@@ -24,30 +19,9 @@ export function Header() {
           </Link>
         </div>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="text-sm font-medium text-foreground">
-              Workspaces
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56">
-            <DropdownMenuItem className="focus:bg-accent focus:text-accent-foreground cursor-pointer">
-              <Link to="#" className="w-full text-foreground">
-                Workspace 1
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-accent focus:text-accent-foreground cursor-pointer">
-              <Link to="#" className="w-full text-foreground">
-                Workspace 2
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="focus:bg-accent focus:text-accent-foreground cursor-pointer">
-              <Link to="#" className="w-full text-foreground">
-                Workspace 3
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="relative z-10">
+          <WorkspacesPage />
+        </div>
       </div>
 
       <div className="flex-1 max-w-md mx-4">
@@ -69,7 +43,7 @@ export function Header() {
             Settings
           </Link>
           <Link to="/" className="text-sm font-medium text-foreground hover:text-accent-foreground">
-            Logout
+            <LogoutButton />
           </Link>
         </nav>
         <Button variant="ghost" size="icon" onClick={toggleTheme}>
