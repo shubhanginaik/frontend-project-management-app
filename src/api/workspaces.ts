@@ -1,28 +1,34 @@
 import api from "@/api"
-import { Workspace } from "@/types/workspace"
+import { WorkspaceResponseDTO } from "@/types/workspace"
 
-export const fetchWorkspaces = async (): Promise<Workspace[]> => {
-  const response = await api.get<Workspace[]>("/workspaces")
+export const fetchWorkspaces = async (): Promise<WorkspaceResponseDTO[]> => {
+  const response = await api.get<WorkspaceResponseDTO[]>("/workspaces")
   return response.data
 }
 
-export const fetchWorkspaceById = async (id: string): Promise<Workspace> => {
-  const response = await api.get<Workspace>(`/workspaces/${id}`)
+export const fetchWorkspaceById = async (workspaceId: string): Promise<WorkspaceResponseDTO> => {
+  const response = await api.get(`/workspaces/${workspaceId}`)
   return response.data
+}
+
+export const fetchWorkspaceUsers = async () => {
+  const response = await fetch("http://localhost:8080/api/v1/workspace-users")
+  const data = await response.json()
+  return data.data // Access the data field
 }
 
 export const createWorkspace = async (
-  workspaceData: Omit<Workspace, "id" | "createdAt">
-): Promise<Workspace> => {
-  const response = await api.post<Workspace>("/workspaces", workspaceData)
+  workspaceData: Omit<WorkspaceResponseDTO, "id" | "createdAt">
+): Promise<WorkspaceResponseDTO> => {
+  const response = await api.post<WorkspaceResponseDTO>("/workspaces", workspaceData)
   return response.data
 }
 
 export const updateWorkspace = async (
   id: string,
-  workspaceData: Partial<Workspace>
-): Promise<Workspace> => {
-  const response = await api.put<Workspace>(`/workspaces/${id}`, workspaceData)
+  workspaceData: Partial<WorkspaceResponseDTO>
+): Promise<WorkspaceResponseDTO> => {
+  const response = await api.put<WorkspaceResponseDTO>(`/workspaces/${id}`, workspaceData)
   return response.data
 }
 

@@ -26,12 +26,6 @@ export function Sidebar() {
         <li>
           <Link to="/role">Role Management</Link>
         </li>
-        <li>
-          <Link to="/login">Login</Link>
-        </li>
-        <li>
-          <Link to="/signup">SignUp</Link>
-        </li>
 
         <li>Members: Which will show allthe members of the workpaces</li>
         <li>

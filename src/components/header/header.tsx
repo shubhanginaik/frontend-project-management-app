@@ -3,11 +3,12 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "@/context/ThemeContext"
-import { LogoutButton } from "../LogoutButton"
-import { WorkspacesPage } from "@/pages/dashboard/workspaceDash/WorkspacePage"
+import { WorkspacePage } from "@/pages/dashboard/workspaceDash/WorkspacePage"
+import { useAuth } from "@/context/AuthContext"
 
 export function Header() {
   const { theme, toggleTheme } = useTheme()
+  const { isAuthenticated, logout } = useAuth()
 
   return (
     <header className="w-full flex items-center justify-between p-4 bg-background border-b">
@@ -18,10 +19,12 @@ export function Header() {
             VisionBoard
           </Link>
         </div>
-
-        <div className="relative z-10">
-          <WorkspacesPage />
-        </div>
+        {/* add this only when authenticated */}
+        {isAuthenticated && (
+          <div className="relative z-10">
+            <WorkspacePage />
+          </div>
+        )}
       </div>
 
       <div className="flex-1 max-w-md mx-4">
@@ -30,22 +33,45 @@ export function Header() {
 
       <div className="flex items-center space-x-4">
         <nav className="flex space-x-4">
-          <Link
-            to="/profile"
-            className="text-sm font-medium text-foreground hover:text-accent-foreground"
-          >
-            Profile
-          </Link>
-          <Link
-            to="/settings"
-            className="text-sm font-medium text-foreground hover:text-accent-foreground"
-          >
-            Settings
-          </Link>
-          <Link to="/" className="text-sm font-medium text-foreground hover:text-accent-foreground">
-            <LogoutButton />
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <Link
+                to="/profile"
+                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
+              >
+                Profile
+              </Link>
+              <Link
+                to="/settings"
+                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
+              >
+                Settings
+              </Link>
+              <Button
+                onClick={logout}
+                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
+              >
+                SignUp
+              </Link>
+            </>
+          )}
         </nav>
+
         <Button variant="ghost" size="icon" onClick={toggleTheme}>
           {theme === "light" ? (
             <Moon className="h-[1.2rem] w-[1.2rem]" />

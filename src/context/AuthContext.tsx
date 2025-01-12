@@ -1,13 +1,19 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react"
+import React, { createContext, useContext, useState, useCallback } from "react"
 import { useQueryClient, useMutation } from "@tanstack/react-query"
-import api from "@/api"
 import jwtDecode from "jwt-decode"
+import api from "@/api"
+import { fetchWorkspaceUsers, fetchWorkspaceDetails, WorkspaceDetails } from "@/api/NewWorkspace"
 
 interface DecodedToken {
-  sub: string
-  permission: string[]
+  sub: string // This is the email
   iat: number
   exp: number
+}
+
+interface UserData {
+  id: string
+  email: string
+  firstName: string
 }
 
 interface AuthContextType {
@@ -15,9 +21,11 @@ interface AuthContextType {
   setToken: (token: string | null) => void
   isAuthenticated: boolean
   userId: string | null
-  workspaceIds: string[] | null
+  userEmail: string | null
+  firstName: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
+  workspaces: WorkspaceDetails[]
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -26,52 +34,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token)
   const [userId, setUserId] = useState<string | null>(null)
-  const [workspaceIds, setWorkspaceIds] = useState<string[] | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [firstName, setFirstName] = useState<string | null>(null)
+  const [workspaces, setWorkspaces] = useState<WorkspaceDetails[]>([])
+
   const queryClient = useQueryClient()
 
   const decodeToken = useCallback((token: string) => {
     try {
       const decoded = jwtDecode<DecodedToken>(token)
-      setUserId(decoded.sub)
-      setWorkspaceIds(decoded.permission)
-      return { userId: decoded.sub, workspaceIds: decoded.permission }
+      setUserEmail(decoded.sub)
+      return { userEmail: decoded.sub }
     } catch (error) {
       console.error("Error decoding token:", error)
-      return { userId: null, workspaceIds: null }
+      return { userEmail: null }
     }
   }, [])
 
-  useEffect(() => {
-    if (token) {
-      const { userId, workspaceIds } = decodeToken(token)
-      console.log("Decoded token, userId:", userId)
-      console.log("Decoded token, workspaceIds:", workspaceIds)
-    } else {
-      setUserId(null)
-      setWorkspaceIds(null)
-      setIsAuthenticated(false)
+  const fetchWorkspaceData = useCallback(async (userId: string) => {
+    try {
+      const workspaceUsers = await fetchWorkspaceUsers()
+      console.log("workspaceUsers", workspaceUsers)
+      const userWorkspaces = workspaceUsers.filter((wu) => wu.userId === userId)
+      const workspaceDetails = await Promise.all(
+        userWorkspaces.map(async (workspaceUser) => {
+          return await fetchWorkspaceDetails(workspaceUser.workspaceId)
+        })
+      )
+      setWorkspaces(workspaceDetails)
+    } catch (error) {
+      console.error("Error fetching workspace data:", error)
     }
-  }, [token, decodeToken])
+  }, [])
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
       const response = await api.post("/auth/login", credentials)
       if (response.data && response.data.data && response.data.data.accessToken) {
-        return response.data.data.accessToken
+        console.log("Login response:", response.data)
+        return {
+          token: response.data.data.accessToken,
+          userData: response.data.data as UserData
+        }
       }
       throw new Error("Unexpected response structure")
     },
-    onSuccess: (newToken) => {
+    onSuccess: async (data) => {
+      const { token: newToken, userData } = data
       setToken(newToken)
       setIsAuthenticated(true)
       localStorage.setItem("token", newToken)
-      const { userId, workspaceIds } = decodeToken(newToken)
+
+      const decodedToken = decodeToken(newToken)
+      setUserId(userData.id)
+      setUserEmail(userData.email)
+      setFirstName(userData.firstName)
+
       console.log("Login successful, token set")
-      console.log("UserId:", userId)
-      console.log("WorkspaceIds:", workspaceIds)
+      console.log("UserId:", userData.id)
+      console.log("UserEmail:", userData.email)
+      console.log("FirstName:", userData.firstName)
+
+      await fetchWorkspaceData(userData.id)
     },
     onError: (error) => {
       console.error("Login error:", error)
+      setIsAuthenticated(false)
       throw error
     }
   })
@@ -90,7 +118,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(null)
       setIsAuthenticated(false)
       setUserId(null)
-      setWorkspaceIds(null)
+      setUserEmail(null)
+      setFirstName(null)
+      setWorkspaces([])
       localStorage.removeItem("token")
       queryClient.clear()
       console.log("Logged out")
@@ -111,9 +141,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setToken,
         isAuthenticated,
         userId,
-        workspaceIds,
+        userEmail,
+        firstName,
         login,
-        logout
+        logout,
+        workspaces
       }}
     >
       {children}

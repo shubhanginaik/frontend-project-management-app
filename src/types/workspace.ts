@@ -1,9 +1,9 @@
-export interface Workspace {
-  id: string // UUID
+export interface WorkspaceResponseDTO {
+  id: string
   name: string
   description: string
-  createdAt: string
   type: string
-  companyId: string
+  createdDate: string
   createdBy: string
+  companyId: string
 }

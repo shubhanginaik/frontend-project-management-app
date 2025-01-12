@@ -1,83 +1,77 @@
 import React from "react"
+import { useQuery } from "@tanstack/react-query"
+import { useNavigate } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Plus } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Skeleton } from "@/components/ui/skeleton"
+import { AlertCircle, ArrowRight } from "lucide-react"
+import { fetchDefaultWorkspaceInfo } from "@/api/NewWorkspace"
+
+interface DefaultWorkspaceInfo {
+  name: string
+  description: string
+  taskCount: number
+  memberCount: number
+}
 
 export function DefaultWorkspacePage() {
   const navigate = useNavigate()
-  // Placeholder for navigation function
-  const handleCreateWorkspace = () => {
-    console.log("Navigate to create workspace page")
+  const { data, isLoading, error } = useQuery<DefaultWorkspaceInfo, Error>({
+    queryKey: ["defaultWorkspace"],
+    queryFn: fetchDefaultWorkspaceInfo
+  })
 
-    navigate("/create-workspace")
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-[250px] mb-2" />
+            <Skeleton className="h-4 w-[300px]" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-4 w-[200px] mb-2" />
+            <Skeleton className="h-4 w-[150px] mb-2" />
+            <Skeleton className="h-10 w-[180px] mt-4" />
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-4">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            {error.message || "Failed to load default workspace information"}
+          </AlertDescription>
+        </Alert>
+      </div>
+    )
   }
 
   return (
     <div className="container mx-auto p-4">
-      <Card className="mb-6">
+      <Card>
         <CardHeader>
-          <CardTitle>Welcome to Your Workspace</CardTitle>
+          <CardTitle>{data?.name || "Default Workspace"}</CardTitle>
           <CardDescription>
-            This is your default workspace. Get started by creating tasks or a new workspace.
+            {data?.description || "Welcome to your default workspace"}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="mb-2">Active Tasks: 3</p>
-          <p className="mb-4">Team Members: 1 (You)</p>
-          <Button onClick={handleCreateWorkspace}>
+          <p className="mb-2">Tasks: {data?.taskCount || 0}</p>
+          <p className="mb-4">Members: {data?.memberCount || 1}</p>
+          <Button onClick={() => navigate("/create-workspace")}>
             Create New Workspace
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </CardContent>
       </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>To Do</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              <li className="p-2 bg-gray-200 rounded">Create project plan</li>
-              <li className="p-2 bg-gray-200 rounded">Set up team meeting</li>
-            </ul>
-            <Button variant="ghost" className="w-full mt-4">
-              <Plus className="mr-2 h-4 w-4" /> Add a task
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>In Progress</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              <li className="p-2 bg-gray-100 rounded">Design user interface</li>
-            </ul>
-            <Button variant="ghost" className="w-full mt-4">
-              <Plus className="mr-2 h-4 w-4" /> Add a task
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Done</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              <li className="p-2 bg-gray-100 rounded line-through">
-                Set up development environment
-              </li>
-            </ul>
-            <Button variant="ghost" className="w-full mt-4">
-              <Plus className="mr-2 h-4 w-4" /> Add a task
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
     </div>
   )
 }
