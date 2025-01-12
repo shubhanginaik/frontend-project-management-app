@@ -2,7 +2,12 @@ import React, { createContext, useContext, useState, useCallback } from "react"
 import { useQueryClient, useMutation } from "@tanstack/react-query"
 import jwtDecode from "jwt-decode"
 import api from "@/api"
-import { fetchWorkspaceUsers, fetchWorkspaceDetails, WorkspaceDetails } from "@/api/NewWorkspace"
+import {
+  fetchWorkspaceUsers,
+  fetchWorkspaceDetails,
+  WorkspaceDetails,
+  WorkspaceDetailsResponse
+} from "@/api/Workspace"
 
 interface DecodedToken {
   sub: string // This is the email
@@ -16,6 +21,20 @@ interface UserData {
   firstName: string
 }
 
+interface WorkspaceUser {
+  id: string
+  roleId: string
+  userId: string
+  workspaceId: string
+}
+
+interface WorkspaceUsersResponse {
+  data: WorkspaceUser[]
+  status: string
+  code: number
+  errors: null | any
+}
+
 interface AuthContextType {
   token: string | null
   setToken: (token: string | null) => void
@@ -25,7 +44,7 @@ interface AuthContextType {
   firstName: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
-  workspaces: WorkspaceDetails[]
+  workspaces: WorkspaceDetailsResponse[]
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -36,7 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userId, setUserId] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [firstName, setFirstName] = useState<string | null>(null)
-  const [workspaces, setWorkspaces] = useState<WorkspaceDetails[]>([])
+  const [workspaces, setWorkspaces] = useState<WorkspaceDetailsResponse[]>([])
 
   const queryClient = useQueryClient()
 
@@ -53,17 +72,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchWorkspaceData = useCallback(async (userId: string) => {
     try {
-      const workspaceUsers = await fetchWorkspaceUsers()
-      console.log("workspaceUsers", workspaceUsers)
-      const userWorkspaces = workspaceUsers.filter((wu) => wu.userId === userId)
-      const workspaceDetails = await Promise.all(
-        userWorkspaces.map(async (workspaceUser) => {
-          return await fetchWorkspaceDetails(workspaceUser.workspaceId)
-        })
-      )
-      setWorkspaces(workspaceDetails)
+      const data = await fetchWorkspaceUsers()
+      console.log("fetchWorkspaceUsers", data)
+      const workspaceUsersResponse: WorkspaceUsersResponse = data
+
+      if (workspaceUsersResponse.data && Array.isArray(workspaceUsersResponse.data)) {
+        const userWorkspaces = workspaceUsersResponse.data.filter((wu) => wu.userId === userId)
+        const workspaceDetailsResponse: WorkspaceDetailsResponse[] = await Promise.all(
+          userWorkspaces.map(async (workspaceUser) => {
+            return await fetchWorkspaceDetails(workspaceUser.workspaceId)
+          })
+        )
+
+        setWorkspaces(workspaceDetailsResponse)
+        console.log("Workspaces:", workspaceDetailsResponse)
+      } else {
+        console.error("Unexpected workspaceUsers response structure:", workspaceUsersResponse)
+        setWorkspaces([])
+      }
     } catch (error) {
       console.error("Error fetching workspace data:", error)
+      setWorkspaces([])
     }
   }, [])
 

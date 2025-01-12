@@ -1,27 +1,18 @@
 import React from "react"
-import { useParams } from "react-router-dom"
-import { useQuery } from "@tanstack/react-query"
+import { useLocation, useParams } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { fetchWorkspaceDetails, WorkspaceDetails } from "@/api/NewWorkspace"
 import { useAuth } from "@/context/AuthContext"
+import { WorkspaceDetails } from "@/api/Workspace"
 
 export function WorkspaceDetailsPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
-  const { isAuthenticated } = useAuth()
+  const { workspaces } = useAuth()
+  const location = useLocation()
+  const { workspace: initialWorkspace } = location.state || {}
 
-  const {
-    data: workspace,
-    isLoading,
-    error
-  } = useQuery<WorkspaceDetails, Error>({
-    queryKey: ["workspace", workspaceId],
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    queryFn: () => fetchWorkspaceDetails(workspaceId!),
-    enabled: isAuthenticated && !!workspaceId
-  })
+  const workspace: WorkspaceDetails =
+    initialWorkspace || workspaces.find((ws) => ws.data.id === workspaceId)?.data
 
-  if (isLoading) return <div>Loading workspace details...</div>
-  if (error) return <div>Error loading workspace: {error.message}</div>
   if (!workspace) return <div>Workspace not found</div>
 
   return (
@@ -29,9 +20,17 @@ export function WorkspaceDetailsPage() {
       <Card>
         <CardHeader>
           <CardTitle>{workspace.name}</CardTitle>
+          <span className="text-sm text-gray-500">type: {workspace.type.toLowerCase()}</span>
+          {/* add a edit icon or button there */}
+          {/* add small button */}
+          <button className="text-sm text-white-600">Edit</button>
         </CardHeader>
         <CardContent>
-          <p>{workspace.description}</p>
+          <div className="space-y-2">
+            <p>
+              <h3>Boards</h3>
+            </p>
+          </div>
           {/* Add more workspace details and management features here */}
         </CardContent>
       </Card>

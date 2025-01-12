@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AlertCircle, ArrowRight } from "lucide-react"
-import { fetchDefaultWorkspaceInfo } from "@/api/NewWorkspace"
+import { fetchDefaultWorkspaceInfo } from "@/api/Workspace"
 
 interface DefaultWorkspaceInfo {
   name: string

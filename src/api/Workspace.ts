@@ -1,10 +1,16 @@
 import api from "@/api"
 
-export interface WorkspaceUser {
+export interface Workspaceuser {
   id: string
-  workspaceId: string
   roleId: string
   userId: string
+  workspaceId: string
+}
+export interface WorkspaceUsersResponse {
+  data: Workspaceuser[]
+  status: string
+  code: number
+  errors: null | any
 }
 
 export interface WorkspaceDetails {
@@ -15,6 +21,12 @@ export interface WorkspaceDetails {
   createdDate: string
   createdBy: string
   companyId: string
+}
+export interface WorkspaceDetailsResponse {
+  data: WorkspaceDetails
+  status: string
+  code: number
+  errors: null | any
 }
 
 export interface DefaultWorkspaceInfo {
@@ -36,12 +48,14 @@ export async function fetchDefaultWorkspaceInfo(): Promise<DefaultWorkspaceInfo>
   }
 }
 
-export const fetchWorkspaceUsers = async (): Promise<WorkspaceUser[]> => {
-  const response = await api.get<WorkspaceUser[]>("/workspace-users")
+export const fetchWorkspaceUsers = async (): Promise<WorkspaceUsersResponse> => {
+  const response = await api.get<WorkspaceUsersResponse>("/workspace-users")
   return response.data
 }
 
-export const fetchWorkspaceDetails = async (workspaceId: string): Promise<WorkspaceDetails> => {
-  const response = await api.get<WorkspaceDetails>(`/workspaces/${workspaceId}`)
+export const fetchWorkspaceDetails = async (
+  workspaceId: string
+): Promise<WorkspaceDetailsResponse> => {
+  const response = await api.get<WorkspaceDetailsResponse>(`/workspaces/${workspaceId}`)
   return response.data
 }

@@ -1,4 +1,3 @@
-import React from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,9 +15,13 @@ export function WorkspacesDropdown() {
   const navigate = useNavigate()
   const { isAuthenticated, workspaces } = useAuth()
 
+  console.log("From dropdown: workspaces", workspaces)
+
   const handleWorkspaceSelect = (workspaceId: string) => {
-    // setCurrentWorkspaceId(workspaceId)
-    navigate(`/workspace/${workspaceId}`)
+    const selectedWorkspace = workspaces.find((workspace) => workspace.data.id === workspaceId)
+    if (selectedWorkspace) {
+      navigate(`/workspaces/${workspaceId}`, { state: { workspace: selectedWorkspace.data } })
+    }
   }
 
   if (!isAuthenticated) {
@@ -40,10 +43,10 @@ export function WorkspacesDropdown() {
         {workspaces.length > 0 ? (
           workspaces.map((workspace) => (
             <DropdownMenuItem
-              key={workspace.id}
-              onSelect={() => handleWorkspaceSelect(workspace.id)}
+              key={workspace.data.id}
+              onSelect={() => handleWorkspaceSelect(workspace.data.id)}
             >
-              {workspace.name}
+              {workspace.data.name}
             </DropdownMenuItem>
           ))
         ) : (
