@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "@/context/ThemeContext"
-import { WorkspacePage } from "@/pages/dashboard/workspaceDash/WorkspacePage"
+import { WorkspacePage } from "@/pages/dashboard/workspaceDash/WorkspacePageDd"
 import { useAuth } from "@/context/AuthContext"
 
 export function Header() {

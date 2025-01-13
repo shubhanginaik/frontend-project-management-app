@@ -1,6 +1,6 @@
 import React from "react"
 import Board from "../../components/board/Board"
-import { boards } from "../dashboard/boardsData"
+import { boards } from "../dashboard/boards/boardsData"
 import "./Home.css"
 import { Link } from "react-router-dom"
 

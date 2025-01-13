@@ -35,7 +35,7 @@ export function WorkspacesDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">Workspaces</Button>
+        <Button variant="default">Workspaces</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>Your Workspaces</DropdownMenuLabel>

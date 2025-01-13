@@ -85,14 +85,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         )
 
         setWorkspaces(workspaceDetailsResponse)
+        localStorage.setItem("workspaces", JSON.stringify(workspaceDetailsResponse))
         console.log("Workspaces:", workspaceDetailsResponse)
       } else {
         console.error("Unexpected workspaceUsers response structure:", workspaceUsersResponse)
         setWorkspaces([])
+        localStorage.removeItem("workspaces")
       }
     } catch (error) {
       console.error("Error fetching workspace data:", error)
       setWorkspaces([])
+      localStorage.removeItem("workspaces")
     }
   }, [])
 

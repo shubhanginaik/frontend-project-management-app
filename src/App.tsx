@@ -6,14 +6,16 @@ import { LoginPage } from "@/pages/login"
 import { KanbanBoard } from "@/components/board/kanban-board"
 import { DashboardPage } from "@/pages/dashboard"
 import { RoleManagement } from "@/pages/dashboard/role-management"
-import { BoardsPage } from "@/pages/dashboard/BoardsPage"
+import { BoardsPage } from "@/pages/dashboard/boards/BoardsPage"
 import { SignupPage } from "@/pages/signup"
-import { CreateWorkspacePage } from "@/pages/dashboard/workspaceDash/createWorkspacePage"
+import { CreateWorkspacePage } from "@/pages/dashboard/workspaceDash/CreateWorkspacePage"
 import { DefaultWorkspacePage } from "@/pages/dashboard/workspaceDash/DefaultWorkspacePage"
 import { WorkspaceDetailsPage } from "@/pages/dashboard/workspaceDash/WorkspaceDetailsPage"
 import { Header } from "@/components/header/header"
 import { Sidebar } from "@/components/sidebar/Sidebar"
 import "./App.css"
+import { Profile } from "./components/Profile"
+import { Settings } from "./components/Settings"
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth()
@@ -73,6 +75,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <BoardsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
         }
       />
