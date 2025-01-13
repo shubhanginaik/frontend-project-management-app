@@ -50,7 +50,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
+  const [token, setToken] = useState<string | null>(sessionStorage.getItem("token"))
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token)
   const [userId, setUserId] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
@@ -85,17 +85,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         )
 
         setWorkspaces(workspaceDetailsResponse)
-        localStorage.setItem("workspaces", JSON.stringify(workspaceDetailsResponse))
+        sessionStorage.setItem("workspaces", JSON.stringify(workspaceDetailsResponse))
         console.log("Workspaces:", workspaceDetailsResponse)
       } else {
         console.error("Unexpected workspaceUsers response structure:", workspaceUsersResponse)
         setWorkspaces([])
-        localStorage.removeItem("workspaces")
+        sessionStorage.removeItem("workspaces")
       }
     } catch (error) {
       console.error("Error fetching workspace data:", error)
       setWorkspaces([])
-      localStorage.removeItem("workspaces")
+      sessionStorage.removeItem("workspaces")
     }
   }, [])
 
@@ -115,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { token: newToken, userData } = data
       setToken(newToken)
       setIsAuthenticated(true)
-      localStorage.setItem("token", newToken)
+      sessionStorage.setItem("token", newToken)
 
       const decodedToken = decodeToken(newToken)
       setUserId(userData.id)
@@ -144,6 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logoutMutation = useMutation({
     mutationFn: async () => {
       // Perform any logout API calls here if needed
+      localStorage.removeItem("workspaces")
       return Promise.resolve()
     },
     onSuccess: () => {
@@ -153,7 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserEmail(null)
       setFirstName(null)
       setWorkspaces([])
-      localStorage.removeItem("token")
+      sessionStorage.removeItem("token")
       queryClient.clear()
       console.log("Logged out")
     },

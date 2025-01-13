@@ -34,9 +34,10 @@
   display: flex;
   align-items: center;
   text-decoration: none;
-  color: #333;
+  color: #676363;
 }
 
 .sidebar-icon {
   margin-right: 0.5rem;
+  background-color: #f4f5f7;
 }
