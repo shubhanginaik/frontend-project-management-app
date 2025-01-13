@@ -109,9 +109,9 @@ export function WorkspaceDetailsPage() {
                   <Button
                     className="mt-2 w-full"
                     variant="outline"
-                    onClick={() => navigate(`/projects/${project.id}`)}
+                    onClick={() => navigate(`/projects/${project.id}/board`)}
                   >
-                    View Project
+                    View Project Board
                   </Button>
                 </CardContent>
               </Card>

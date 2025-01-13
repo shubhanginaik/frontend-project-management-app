@@ -16,6 +16,7 @@ import { Sidebar } from "@/components/sidebar/Sidebar"
 import "./App.css"
 import { Profile } from "./components/Profile"
 import { Settings } from "./components/Settings"
+import { ProjectBoardPage } from "./pages/dashboard/boards/ProjectBoardsPage"
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth()
@@ -59,6 +60,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <WorkspaceDetailsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/projects/:projectId/board"
+        element={
+          <ProtectedRoute>
+            <ProjectBoardPage />
           </ProtectedRoute>
         }
       />
