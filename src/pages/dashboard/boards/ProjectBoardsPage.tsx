@@ -1,13 +1,13 @@
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 import { DragDropContext, DropResult } from "@hello-pangea/dnd"
 import { Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useTasks, Task, useUpdateTask, useAddTask, useUploadAttachment } from "@/hooks/taskHook"
-import { useQueryClient } from "@tanstack/react-query"
 import { TaskColumn } from "@/components/task/TaskColumn"
 import { TaskDetailsDialog } from "@/components/task/TaskDetailsDialog"
 import { useAuth } from "@/context/AuthContext"
+import { useToast } from "@/components/ui/use-toast"
 
 interface Column {
   id: string
@@ -17,63 +17,107 @@ interface Column {
 
 export function ProjectBoardPage() {
   const { projectId } = useParams<{ projectId: string }>()
-  const queryClient = useQueryClient()
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-  const [columns, setColumns] = useState<Column[]>([]) // Added local state for columns
-  const { userId } = useAuth()
-  const { data: tasksResponse, isLoading, error } = useTasks()
+  const [columns, setColumns] = useState<Column[]>([])
+  const { userId, isAuthenticated } = useAuth()
+  const { toast } = useToast()
 
-  const memoizedColumns = useMemo(() => {
-    // Updated useMemo to set local state
-    const columnDefinitions: Column[] = [
-      { id: "todo", title: "To Do", tasks: [] },
-      { id: "in-progress", title: "In Progress", tasks: [] },
-      { id: "done", title: "Done", tasks: [] }
-    ]
-
-    if (!tasksResponse) return columnDefinitions
-
-    const projectTasks = tasksResponse.data.filter((task: Task) => task.projectId === projectId)
-
-    const updatedColumns = columnDefinitions.map((column) => ({
-      ...column,
-      tasks: projectTasks.filter((task: Task) => task.taskStatus.toLowerCase() === column.id)
-    }))
-
-    setColumns(updatedColumns)
-    return updatedColumns
-  }, [tasksResponse, projectId])
+  const { data: tasksResponse, isLoading, error } = useTasks(projectId!)
 
   const updateTaskMutation = useUpdateTask()
   const addTaskMutation = useAddTask()
   const uploadAttachmentMutation = useUploadAttachment()
 
+  useMemo(() => {
+    if (!tasksResponse) return
+
+    const columnDefinitions: Column[] = [
+      { id: "TODO", title: "To Do", tasks: [] },
+      { id: "IN_PROGRESS", title: "In Progress", tasks: [] },
+      { id: "DONE", title: "Done", tasks: [] }
+    ]
+
+    const updatedColumns = columnDefinitions.map((column) => ({
+      ...column,
+      tasks: tasksResponse.data.filter((task: Task) => task.taskStatus.toUpperCase() === column.id)
+    }))
+
+    setColumns(updatedColumns)
+  }, [tasksResponse])
+
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result
 
-    if (!destination) {
-      return
-    }
+    if (!destination) return
+    if (destination.droppableId === source.droppableId && destination.index === source.index) return
 
-    if (destination.droppableId === source.droppableId && destination.index === source.index) {
-      return
-    }
+    const sourceColumn = columns.find((col) => col.id === source.droppableId)
+    const destColumn = columns.find((col) => col.id === destination.droppableId)
+    const task = sourceColumn?.tasks.find((t) => t.id === draggableId)
 
-    const task = columns
-      .find((col) => col.id === source.droppableId)
-      ?.tasks.find((t) => t.id === draggableId)
-
-    if (task) {
-      updateTaskMutation.mutate({
-        taskId: task.id,
-        updatedTask: { taskStatus: destination.droppableId }
-      })
+    if (task && sourceColumn && destColumn) {
+      const newStatus = destination.droppableId
+      updateTaskMutation.mutate(
+        {
+          taskId: task.id,
+          updatedTask: { ...task, taskStatus: newStatus, projectId: projectId! }
+        },
+        {
+          onSuccess: (response) => {
+            if (response !== null) {
+              const updatedTask = response
+              const updatedColumns = columns.map((column) => {
+                if (column.id === sourceColumn.id) {
+                  return {
+                    ...column,
+                    tasks: column.tasks.filter((t) => t.id !== task.id)
+                  }
+                }
+                if (column.id === destColumn.id) {
+                  const newTasks = Array.from(column.tasks)
+                  newTasks.splice(destination.index, 0, updatedTask)
+                  return {
+                    ...column,
+                    tasks: newTasks
+                  }
+                }
+                return column
+              })
+              setColumns(updatedColumns)
+            } else {
+              console.error("Failed to update task:")
+              toast({
+                title: "Error",
+                description: "Failed to update task. Please try again.",
+                variant: "destructive"
+              })
+            }
+          },
+          onError: (error) => {
+            console.error("Error updating task:", error)
+            toast({
+              title: "Error",
+              description: error.message || "Failed to update task. Please try again.",
+              variant: "destructive"
+            })
+          }
+        }
+      )
     }
   }
 
   const handleAddTask = (columnId: string, taskName: string) => {
     if (!projectId) {
       console.error("Project ID is missing")
+      return
+    }
+
+    if (!isAuthenticated) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to add tasks.",
+        variant: "destructive"
+      })
       return
     }
 
@@ -86,14 +130,13 @@ export function ProjectBoardPage() {
       attachment: [],
       taskStatus: columnId,
       projectId: projectId,
-      createdUserId: userId ?? "", // TODO: Add current user ID
-      assignedUserId: userId ?? "", // TODO: Add current user ID
+      createdUserId: userId ?? "",
+      assignedUserId: userId ?? "",
       priority: "LOW_PRIORITY"
     }
 
     addTaskMutation.mutate(newTask, {
       onSuccess: (addedTask) => {
-        // Manually update the local state to immediately show the new task
         const updatedColumns = columns.map((column) => {
           if (column.id === columnId) {
             return {
@@ -107,23 +150,37 @@ export function ProjectBoardPage() {
       },
       onError: (error) => {
         console.error("Failed to add task:", error)
-        // Optionally, show an error message to the user
+        toast({
+          title: "Error",
+          description: "Failed to add task. Please try again.",
+          variant: "destructive"
+        })
       }
     })
   }
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
-    if (file && selectedTask) {
+    if (file && selectedTask && projectId) {
       uploadAttachmentMutation.mutate(
-        { taskId: selectedTask.id, file },
+        { taskId: selectedTask.id, file, projectId },
         {
           onSuccess: (attachmentUrl) => {
             updateTaskMutation.mutate({
               taskId: selectedTask.id,
               updatedTask: {
-                attachment: [...(selectedTask?.attachment || []), attachmentUrl]
+                ...selectedTask,
+                attachment: [...(selectedTask?.attachment || []), attachmentUrl],
+                projectId
               }
+            })
+          },
+          onError: (error) => {
+            console.error("Error uploading attachment:", error)
+            toast({
+              title: "Error",
+              description: "Failed to upload attachment. Please try again.",
+              variant: "destructive"
             })
           }
         }
@@ -154,27 +211,55 @@ export function ProjectBoardPage() {
       <h1 className="text-2xl font-bold mb-4">Project Board</h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex space-x-4 overflow-x-auto pb-4">
-          {columns.map(
-            (
-              column // Updated to use local columns state
-            ) => (
-              <TaskColumn
-                key={column.id}
-                id={column.id}
-                title={column.title}
-                tasks={column.tasks}
-                onAddTask={handleAddTask}
-                onTaskClick={setSelectedTask}
-              />
-            )
-          )}
+          {columns.map((column) => (
+            <TaskColumn
+              key={column.id}
+              id={column.id}
+              title={column.title}
+              tasks={column.tasks}
+              onAddTask={handleAddTask}
+              onTaskClick={setSelectedTask}
+            />
+          ))}
         </div>
       </DragDropContext>
 
       <TaskDetailsDialog
         task={selectedTask}
         onClose={() => setSelectedTask(null)}
-        onUpdate={(taskId, updatedTask) => updateTaskMutation.mutate({ taskId, updatedTask })}
+        onUpdate={(taskId, updatedTask) =>
+          updateTaskMutation.mutate(
+            { taskId, updatedTask: { ...updatedTask, projectId: projectId! } as Task },
+            {
+              onSuccess: (response) => {
+                if (response !== null) {
+                  setSelectedTask(response)
+                  // Update the task in the columns state
+                  const updatedColumns = columns.map((column) => ({
+                    ...column,
+                    tasks: column.tasks.map((task) => (task.id === response.id ? response : task))
+                  }))
+                  setColumns(updatedColumns)
+                } else {
+                  console.error("Failed to update task:")
+                  toast({
+                    title: "Error",
+                    description: "Failed to update task. Please try again.",
+                    variant: "destructive"
+                  })
+                }
+              },
+              onError: (error) => {
+                console.error("Error updating task:", error)
+                toast({
+                  title: "Error",
+                  description: error.message || "Failed to update task. Please try again.",
+                  variant: "destructive"
+                })
+              }
+            }
+          )
+        }
         onFileUpload={handleFileUpload}
       />
     </div>

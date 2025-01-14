@@ -1,5 +1,6 @@
 import api from "@/api"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useAuth } from "@/context/AuthContext"
 
 export interface Task {
   id: string
@@ -23,40 +24,44 @@ export interface TaskResponse {
   errors: null | any
 }
 
-export type Priority = "LOW_PRIORITY" | "MEDIUM_PRIORITY" | "HIGH_PRIORITY"
+export interface UpdatedTaskResponse {
+  data: Task
+  status: string
+  code: number
+  errors: null | any
+}
 
-export const fetchTasks = async (): Promise<TaskResponse> => {
+export const fetchTasks = async (projectId: string): Promise<TaskResponse> => {
   try {
-    const response = await api.get<TaskResponse>(`/tasks`)
+    const response = await api.get<TaskResponse>(`/tasks?projectId=${projectId}`)
     return response.data
   } catch (error) {
-    if ((error as any).response && (error as any).response.status === 403) {
-      throw new Error(
-        "You don't have permission to access these tasks. Please check your authentication."
-      )
-    }
+    console.error("Error fetching tasks:", error)
     throw error
   }
 }
 
-export const useTasks = () => {
+export const useTasks = (projectId: string) => {
   return useQuery({
-    queryKey: ["tasks"],
-    queryFn: fetchTasks,
+    queryKey: ["tasks", projectId],
+    queryFn: () => fetchTasks(projectId),
     retry: (failureCount, error) => {
-      if (error.message.includes("403")) return false
+      if ((error as Error).message.includes("403")) return false
       return failureCount < 3
     }
   })
 }
 
-// API function to update task
 export const updateTask = async (taskId: string, updatedTask: Partial<Task>): Promise<Task> => {
-  const response = await api.patch<Task>(`/tasks/${taskId}`, updatedTask)
-  return response.data
+  try {
+    const response = await api.put<UpdatedTaskResponse>(`/tasks/${taskId}`, updatedTask)
+    return response.data.data // Extract the Task object from the response
+  } catch (error) {
+    console.error("Error updating task:", error)
+    throw error
+  }
 }
 
-// API function to add a new task
 export const addTask = async (task: Omit<Task, "id">): Promise<Task> => {
   try {
     const response = await api.post<Task>("/tasks", task)
@@ -67,7 +72,6 @@ export const addTask = async (task: Omit<Task, "id">): Promise<Task> => {
   }
 }
 
-// API function to upload attachment
 export const uploadAttachment = async (taskId: string, file: File): Promise<string> => {
   const formData = new FormData()
   formData.append("file", file)
@@ -75,13 +79,24 @@ export const uploadAttachment = async (taskId: string, file: File): Promise<stri
   return response.data.url
 }
 
-// Custom hooks for mutations
 export const useUpdateTask = () => {
   const queryClient = useQueryClient()
+  const { isAuthenticated } = useAuth()
+
   return useMutation<Task, Error, { taskId: string; updatedTask: Partial<Task> }>({
-    mutationFn: ({ taskId, updatedTask }) => updateTask(taskId, updatedTask),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    mutationFn: ({ taskId, updatedTask }) => {
+      if (!isAuthenticated) {
+        throw new Error("You must be logged in to update tasks.")
+      }
+      return updateTask(taskId, updatedTask)
+    },
+    onSuccess: (updatedTask, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", updatedTask.projectId] })
+      return updatedTask
+    },
+    onError: (error) => {
+      console.error("Error updating task:", error)
+      // You can add additional error handling here, such as showing a toast notification
     }
   })
 }
@@ -89,9 +104,9 @@ export const useUpdateTask = () => {
 export const useAddTask = () => {
   const queryClient = useQueryClient()
   return useMutation<Task, Error, Omit<Task, "id">>({
-    mutationFn: (newTask) => addTask(newTask),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    mutationFn: addTask,
+    onSuccess: (newTask) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", newTask.projectId] })
     },
     onError: (error) => {
       console.error("Error adding task:", error)
@@ -101,10 +116,10 @@ export const useAddTask = () => {
 
 export const useUploadAttachment = () => {
   const queryClient = useQueryClient()
-  return useMutation<string, Error, { taskId: string; file: File }>({
+  return useMutation<string, Error, { taskId: string; file: File; projectId: string }>({
     mutationFn: ({ taskId, file }) => uploadAttachment(taskId, file),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["tasks", variables.projectId] })
     }
   })
 }

@@ -1,5 +1,5 @@
-import React from "react"
-import { Droppable, Draggable } from "@hello-pangea/dnd"
+import React, { useState } from "react"
+import { Droppable } from "@hello-pangea/dnd"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,7 +16,7 @@ interface TaskColumnProps {
 }
 
 export function TaskColumn({ id, title, tasks, onAddTask, onTaskClick }: TaskColumnProps) {
-  const [newTaskName, setNewTaskName] = React.useState("")
+  const [newTaskName, setNewTaskName] = useState("")
 
   const handleAddTask = () => {
     if (newTaskName.trim()) {
@@ -36,11 +36,12 @@ export function TaskColumn({ id, title, tasks, onAddTask, onTaskClick }: TaskCol
             {(provided) => (
               <div {...provided.droppableProps} ref={provided.innerRef} className="min-h-[200px]">
                 {tasks.map((task: Task, index: number) => (
-                  <Draggable key={task.id} draggableId={task.id} index={index}>
-                    {(provided) => (
-                      <TaskCard task={task} provided={provided} onClick={() => onTaskClick(task)} />
-                    )}
-                  </Draggable>
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    index={index}
+                    onClick={() => onTaskClick(task)}
+                  />
                 ))}
                 {provided.placeholder}
               </div>
