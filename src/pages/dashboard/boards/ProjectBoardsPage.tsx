@@ -1,16 +1,13 @@
-"use client"
-
-import React, { useMemo } from "react"
+import React, { useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Loader2, Plus } from "lucide-react"
+import { DragDropContext, DropResult } from "@hello-pangea/dnd"
+import { Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { useTasks, Task } from "@/hooks/taskHook"
-import api from "@/api"
+import { useTasks, Task, useUpdateTask, useAddTask, useUploadAttachment } from "@/hooks/taskHook"
+import { useQueryClient } from "@tanstack/react-query"
+import { TaskColumn } from "@/components/task/TaskColumn"
+import { TaskDetailsDialog } from "@/components/task/TaskDetailsDialog"
+import { useAuth } from "@/context/AuthContext"
 
 interface Column {
   id: string
@@ -18,56 +15,38 @@ interface Column {
   tasks: Task[]
 }
 
-// API function to update task status
-const updateTaskStatus = async (taskId: string, newStatus: string): Promise<Task> => {
-  const response = await api.patch<Task>(`/tasks/${taskId}`, { taskStatus: newStatus })
-  return response.data
-}
-
-// API function to add a new task
-const addTask = async (projectId: string, name: string, status: string): Promise<Task> => {
-  const response = await api.post<Task>("/tasks", { projectId, name, taskStatus: status })
-  return response.data
-}
-
 export function ProjectBoardPage() {
   const { projectId } = useParams<{ projectId: string }>()
   const queryClient = useQueryClient()
-  const [newTaskName, setNewTaskName] = React.useState<string>("")
-
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
+  const [columns, setColumns] = useState<Column[]>([]) // Added local state for columns
+  const { userId } = useAuth()
   const { data: tasksResponse, isLoading, error } = useTasks()
 
-  const columns = useMemo(() => {
-    if (!tasksResponse) return []
-
-    const projectTasks = tasksResponse.data.filter((task: Task) => task.projectId === projectId)
-
+  const memoizedColumns = useMemo(() => {
+    // Updated useMemo to set local state
     const columnDefinitions: Column[] = [
       { id: "todo", title: "To Do", tasks: [] },
       { id: "in-progress", title: "In Progress", tasks: [] },
       { id: "done", title: "Done", tasks: [] }
     ]
 
-    return columnDefinitions.map((column) => ({
+    if (!tasksResponse) return columnDefinitions
+
+    const projectTasks = tasksResponse.data.filter((task: Task) => task.projectId === projectId)
+
+    const updatedColumns = columnDefinitions.map((column) => ({
       ...column,
       tasks: projectTasks.filter((task: Task) => task.taskStatus.toLowerCase() === column.id)
     }))
+
+    setColumns(updatedColumns)
+    return updatedColumns
   }, [tasksResponse, projectId])
 
-  const updateTaskStatusMutation = useMutation<Task, Error, { taskId: string; newStatus: string }>({
-    mutationFn: ({ taskId, newStatus }) => updateTaskStatus(taskId, newStatus),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
-    }
-  })
-
-  const addTaskMutation = useMutation<Task, Error, { name: string; status: string }>({
-    mutationFn: ({ name, status }) => addTask(projectId!, name, status),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
-      setNewTaskName("")
-    }
-  })
+  const updateTaskMutation = useUpdateTask()
+  const addTaskMutation = useAddTask()
+  const uploadAttachmentMutation = useUploadAttachment()
 
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result
@@ -85,16 +64,70 @@ export function ProjectBoardPage() {
       ?.tasks.find((t) => t.id === draggableId)
 
     if (task) {
-      updateTaskStatusMutation.mutate({
+      updateTaskMutation.mutate({
         taskId: task.id,
-        newStatus: destination.droppableId
+        updatedTask: { taskStatus: destination.droppableId }
       })
     }
   }
 
-  const handleAddTask = (columnId: string) => {
-    if (newTaskName.trim()) {
-      addTaskMutation.mutate({ name: newTaskName, status: columnId })
+  const handleAddTask = (columnId: string, taskName: string) => {
+    if (!projectId) {
+      console.error("Project ID is missing")
+      return
+    }
+
+    const newTask: Omit<Task, "id"> = {
+      name: taskName,
+      description: "",
+      createdDate: new Date().toISOString(),
+      resolvedDate: "",
+      dueDate: "",
+      attachment: [],
+      taskStatus: columnId,
+      projectId: projectId,
+      createdUserId: userId ?? "", // TODO: Add current user ID
+      assignedUserId: userId ?? "", // TODO: Add current user ID
+      priority: "LOW_PRIORITY"
+    }
+
+    addTaskMutation.mutate(newTask, {
+      onSuccess: (addedTask) => {
+        // Manually update the local state to immediately show the new task
+        const updatedColumns = columns.map((column) => {
+          if (column.id === columnId) {
+            return {
+              ...column,
+              tasks: [...column.tasks, addedTask]
+            }
+          }
+          return column
+        })
+        setColumns(updatedColumns)
+      },
+      onError: (error) => {
+        console.error("Failed to add task:", error)
+        // Optionally, show an error message to the user
+      }
+    })
+  }
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file && selectedTask) {
+      uploadAttachmentMutation.mutate(
+        { taskId: selectedTask.id, file },
+        {
+          onSuccess: (attachmentUrl) => {
+            updateTaskMutation.mutate({
+              taskId: selectedTask.id,
+              updatedTask: {
+                attachment: [...(selectedTask?.attachment || []), attachmentUrl]
+              }
+            })
+          }
+        }
+      )
     }
   }
 
@@ -121,65 +154,29 @@ export function ProjectBoardPage() {
       <h1 className="text-2xl font-bold mb-4">Project Board</h1>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex space-x-4 overflow-x-auto pb-4">
-          {columns.map((column) => (
-            <div key={column.id} className="w-80 flex-shrink-0">
-              <Card>
-                <CardHeader>
-                  <CardTitle>{column.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Droppable droppableId={column.id}>
-                    {(provided) => (
-                      <div
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                        className="min-h-[200px]"
-                      >
-                        {column.tasks.map((task: Task, index: number) => (
-                          <Draggable key={task.id} draggableId={task.id} index={index}>
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="bg-secondary p-2 mb-2 rounded"
-                              >
-                                {task.name}
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                  <div className="mt-2 space-y-2">
-                    <Input
-                      placeholder="Add a task..."
-                      value={newTaskName}
-                      onChange={(e) => setNewTaskName(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === "Enter") {
-                          handleAddTask(column.id)
-                        }
-                      }}
-                    />
-                    <Button
-                      className="w-full"
-                      size="sm"
-                      onClick={() => handleAddTask(column.id)}
-                      disabled={addTaskMutation.isPending}
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Task
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          ))}
+          {columns.map(
+            (
+              column // Updated to use local columns state
+            ) => (
+              <TaskColumn
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                tasks={column.tasks}
+                onAddTask={handleAddTask}
+                onTaskClick={setSelectedTask}
+              />
+            )
+          )}
         </div>
       </DragDropContext>
+
+      <TaskDetailsDialog
+        task={selectedTask}
+        onClose={() => setSelectedTask(null)}
+        onUpdate={(taskId, updatedTask) => updateTaskMutation.mutate({ taskId, updatedTask })}
+        onFileUpload={handleFileUpload}
+      />
     </div>
   )
 }
