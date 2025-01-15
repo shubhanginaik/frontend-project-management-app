@@ -32,7 +32,7 @@ interface WorkspaceUsersResponse {
   data: WorkspaceUser[]
   status: string
   code: number
-  errors: null | any
+  errors: null | unknown
 }
 
 interface AuthContextType {

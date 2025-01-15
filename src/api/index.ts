@@ -14,7 +14,10 @@ api.interceptors.request.use(
     const currentWorkspaceId = sessionStorage.getItem("currentWorkspaceId")
     const workspaces = sessionStorage.getItem("workspaces")
     if (token) {
-      const decodedToken: any = jwtDecode(token)
+      interface DecodedToken {
+        exp: number
+      }
+      const decodedToken: DecodedToken = jwtDecode<DecodedToken>(token)
       const currentTime = Date.now() / 1000
 
       if (decodedToken.exp < currentTime) {

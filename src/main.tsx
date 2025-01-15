@@ -8,6 +8,7 @@ import "./index.css"
 import { ThemeProvider } from "./context/ThemeContext"
 import { AuthProvider } from "./context/AuthContext"
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
+import { ToastProvider } from "./components/ui/toast"
 
 const queryClient = new QueryClient()
 
@@ -15,9 +16,11 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <App />
-        </Router>
+        <ToastProvider>
+          <Router>
+            <App />
+          </Router>
+        </ToastProvider>
       </AuthProvider>
     </ThemeProvider>
     <ReactQueryDevtools initialIsOpen={true} />
