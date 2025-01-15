@@ -11,16 +11,16 @@
 
 .light-theme {
   --background-color: white;
-  --text-color: black;
+  --text-color: rgb(26, 25, 25);
   --button-background-color: #007bff;
   --button-border-radius: 5px;
   --button-text-color: white;
 }
 
 .dark-theme {
-  --background-color: rgb(23, 11, 54);
+  --background-color: #000957;
   --text-color: white;
-  --button-background-color: orange;
+  --button-background-color: rgb(208, 155, 56);
   --button-border-radius: 5px;
   --button-text-color: white;
 }

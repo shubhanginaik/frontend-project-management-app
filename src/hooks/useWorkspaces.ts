@@ -44,3 +44,32 @@ export const useCreateWorkspace = () => {
     }
   })
 }
+
+export interface WorkspaceUpdateScema {
+  name?: string
+  description?: string
+  type?: "PRIVATE" | "PUBLIC" | "SHARED"
+  companyId?: string
+}
+
+export const useUpdateWorkspace = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      workspaceId,
+      updateData
+    }: {
+      workspaceId: string
+      updateData: WorkspaceUpdateScema
+    }) => {
+      const response = await api.put(`/workspaces/${workspaceId}`, updateData)
+      return response.data
+    },
+    onSuccess: (data, variables) => {
+      console.log("Workspace updated successfully", data)
+      queryClient.invalidateQueries({ queryKey: ["workspaces"] })
+      queryClient.invalidateQueries({ queryKey: ["workspace", variables.workspaceId] })
+    }
+  })
+}
