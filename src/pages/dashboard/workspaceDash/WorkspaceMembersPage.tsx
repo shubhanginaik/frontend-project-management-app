@@ -74,25 +74,31 @@ export function MembersPage() {
         </AlertDescription>
       </Alert>
     )
+  if (detailedMembers.length === 0) {
+    return <h1>No members found</h1>
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Members</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {detailedMembers.map((member) => (
-          <Card key={member.id}>
-            <CardHeader>
-              <CardTitle>{`${member.firstName} ${member.lastName}`}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 mb-2">{member.email}</p>
-              <div className="text-xs text-gray-500">
-                <p>Role ID: {member.roleId}</p>
-                <p>Workspace ID: {member.workspaceId}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+    <div>
+      <h1>Members Page</h1>
+      <div className="container mx-auto p-4">
+        <h2 className="text-2xl font-bold mb-4">Members</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {detailedMembers.map((member) => (
+            <Card key={member.id}>
+              <CardHeader>
+                <CardTitle>{`${member.firstName} ${member.lastName}`}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-gray-600 mb-2">{member.email}</p>
+                <div className="text-xs text-gray-500">
+                  <p>Role ID: {member.roleId}</p>
+                  <p>Workspace ID: {member.workspaceId}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   )
