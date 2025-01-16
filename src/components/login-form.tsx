@@ -32,41 +32,52 @@ export function LoginForm() {
       // No navigation here, as workspaces are fetched in the background
     } catch (err: any) {
       console.error("Login error:", err)
-      setError(err.response?.data?.message || "An unexpected error occurred")
+      setError(err.response?.data?.message || "Login failed!")
     }
   }
 
   return (
-    <Card className="mx-auto max-w-sm">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold">Login</CardTitle>
-        <CardDescription>Enter your email and password to login to your account</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              onChange={handleChange}
-              id="email"
-              name="email"
-              type="email"
-              placeholder="m@example.com"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input onChange={handleChange} id="password" name="password" type="password" required />
-          </div>
-          {error && <p className="text-red-500">{error}</p>}
-          <div className="flex justify-center">
-            <Button type="submit" className="px-8" variant="blue">
-              Login
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <Card
+        className="mx-auto max-w-sm rounded-md border-gray-300 shadow-md"
+        style={{ borderRadius: "5px", transform: "translateY(-15px)" }}
+      >
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+          <CardDescription>Enter your email and password to login to your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                onChange={handleChange}
+                id="email"
+                name="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                onChange={handleChange}
+                id="password"
+                name="password"
+                type="password"
+                required
+              />
+            </div>
+            {error && <p className="text-red-500">{error}</p>}
+            <div className="flex justify-center">
+              <Button type="submit" className="px-8" variant="blue">
+                Login
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

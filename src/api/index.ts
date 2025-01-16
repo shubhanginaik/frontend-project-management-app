@@ -22,8 +22,6 @@ api.interceptors.request.use(
 
       if (decodedToken.exp < currentTime) {
         sessionStorage.removeItem("token")
-        sessionStorage.removeItem("currentWorkspaceId")
-        sessionStorage.removeItem("workspaces")
         return Promise.reject(new Error("Token is expired"))
       }
 
