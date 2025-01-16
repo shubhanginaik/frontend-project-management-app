@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import api from "@/api"
 
-interface Project {
+export interface Project {
   id: string
   name: string
   description: string

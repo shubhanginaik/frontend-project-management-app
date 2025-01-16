@@ -5,14 +5,14 @@
 :root {
   --background-color: white;
   --text-color: black;
-  --button-background-color: #007bff;
+  --button-background-color: #2a679d;
   --button-text-color: white;
 }
 
 .light-theme {
   --background-color: white;
   --text-color: rgb(26, 25, 25);
-  --button-background-color: #007bff;
+  --button-background-color: #2a679d;
   --button-border-radius: 5px;
   --button-text-color: white;
 }

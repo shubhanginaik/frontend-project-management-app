@@ -5,10 +5,11 @@ import { Moon, Sun } from "lucide-react"
 import { useTheme } from "@/context/ThemeContext"
 import { WorkspacePage } from "@/pages/dashboard/workspaceDash/WorkspacePageDd"
 import { useAuth } from "@/context/AuthContext"
+import "./header.css"
 
 export function Header() {
   const { theme, toggleTheme } = useTheme()
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, logout, firstName } = useAuth()
 
   return (
     <header className="w-full flex items-center justify-between p-4 bg-background border-b">
@@ -35,24 +36,22 @@ export function Header() {
         <nav className="flex space-x-4">
           {isAuthenticated ? (
             <>
-              <Link
-                to="/profile"
-                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
-              >
-                Profile
-              </Link>
-              <Link
-                to="/settings"
-                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
-              >
-                Settings
-              </Link>
-              <Button
-                onClick={logout}
-                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
-              >
-                Logout
-              </Button>
+              <div className="round-link">
+                <Link
+                  to="/profile"
+                  className="text-sm font-medium text-foreground hover:text-accent-foreground dark:bg-gray-800 px-3 py-2 rounded-md"
+                >
+                  {firstName}
+                </Link>
+              </div>
+              <div className="btnlogout">
+                <Button
+                  onClick={logout}
+                  className="text-sm font-medium text-foreground hover:text-accent-foreground  dark:bg-gray-800 px-3 py-2 rounded-md"
+                >
+                  Logout
+                </Button>
+              </div>
             </>
           ) : (
             <>
@@ -80,6 +79,12 @@ export function Header() {
           )}
           <span className="sr-only">Toggle theme</span>
         </Button>
+        <Link
+          to="/settings"
+          className="text-sm font-medium text-foreground hover:text-accent-foreground dark:bg-gray-800 px-3 py-2 rounded-md"
+        >
+          ...
+        </Link>
       </div>
     </header>
   )

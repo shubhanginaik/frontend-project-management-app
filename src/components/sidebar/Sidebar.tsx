@@ -2,6 +2,7 @@ import React from "react"
 import "./Sidebar.css"
 import { FaTrello } from "react-icons/fa"
 import { Link } from "react-router-dom"
+import { Project } from "@/hooks/projectHook"
 
 export function Sidebar() {
   //const { workspaceId } = useParams<{ workspaceId: string }>()
