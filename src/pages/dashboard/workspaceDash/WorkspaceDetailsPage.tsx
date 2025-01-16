@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import { useLocation, useParams, useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/context/AuthContext"
-import { fetchWorkspaceMembersByWorkspace, WorkspaceDetails } from "@/api/WorkspaceUsers"
+import { WorkspaceDetails } from "@/api/WorkspaceUsers"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Loader2, Pen } from "lucide-react"
@@ -12,8 +12,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogOverlay,
-  DialogDescription
+  DialogOverlay
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -33,9 +32,25 @@ import {
   useWorkspaceMembersByWorkspace,
   WorkspaceUsersByWorkspaceId
 } from "@/api/WorkspaceUsers"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table"
 import "./workspaceDetailsPage.css"
 
-export function WorkspaceDetailsPage() {
+interface WorkspaceDetailsPageProps {
+  isDashboard?: boolean
+  showMembers?: boolean
+}
+
+export function WorkspaceDetailsPage({
+  isDashboard = false,
+  showMembers = false
+}: WorkspaceDetailsPageProps) {
   const { workspaceId: urlWorkspaceId } = useParams<{ workspaceId: string }>()
   const { workspaces } = useAuth()
   const location = useLocation()
@@ -49,12 +64,22 @@ export function WorkspaceDetailsPage() {
 
   const { data: projectsResponse, isLoading, error, refetch } = useProjects()
   const updateWorkspaceMutation = useUpdateWorkspace()
-  const [members, setMembers] = useState<WorkspaceUsersByWorkspaceId[]>([])
+
+  const workspaceIdDd = currentWorkspaceId || sessionStorage.getItem("currentWorkspaceId")
+
+  const {
+    data: membersData,
+    isLoading: isLoadingMembers,
+    error: membersError,
+    refetch: refetchMembers
+  } = useWorkspaceMembersByWorkspace(workspaceIdDd!)
+
   const [detailedMembers, setDetailedMembers] = useState<(WorkspaceUsersByWorkspaceId & Users)[]>(
     []
   )
-  const [isLoadingMembersState, setIsLoadingMembersState] = useState(true)
   const [isLoadingDetails, setIsLoadingDetails] = useState(true)
+
+  const membersRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (currentWorkspaceId) {
@@ -64,20 +89,6 @@ export function WorkspaceDetailsPage() {
       sessionStorage.setItem("currentWorkspaceId", initialWorkspace.id)
     }
   }, [currentWorkspaceId, initialWorkspace])
-
-  let workspaceIdDd = sessionStorage.getItem("currentWorkspaceIdDd")
-  if (sessionStorage.getItem("membersVisible") === "false") {
-    workspaceIdDd = sessionStorage.getItem("currentWorkspaceId")
-  } else {
-    workspaceIdDd = sessionStorage.getItem("currentWorkspaceIdDd")
-  }
-
-  const {
-    data: membersData,
-    isLoading: isLoadingMembersData,
-    error: membersError,
-    refetch: refetchMembers
-  } = useWorkspaceMembersByWorkspace(workspaceIdDd!)
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -100,25 +111,14 @@ export function WorkspaceDetailsPage() {
   }, [membersData])
 
   useEffect(() => {
-    const fetchMembers = async () => {
-      if (currentWorkspaceId) {
-        try {
-          const response = await fetchWorkspaceMembersByWorkspace(currentWorkspaceId)
-          setMembers(response.data)
-        } catch (error) {
-          console.error("Error fetching workspace members:", error)
-        } finally {
-          setIsLoadingMembersState(false)
-        }
-      }
+    if (showMembers && membersRef.current) {
+      membersRef.current.scrollIntoView({ behavior: "smooth" })
     }
-
-    fetchMembers()
-  }, [currentWorkspaceId])
+  }, [showMembers])
 
   const workspace: WorkspaceDetails =
     initialWorkspace || workspaces.find((ws) => ws.data.id === currentWorkspaceId)
-
+  console.log("showMembers in WorkspaceDetailsPage:", showMembers)
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!workspace) return
@@ -181,79 +181,118 @@ export function WorkspaceDetailsPage() {
   const projects =
     projectsResponse?.data.filter((project) => project.workspaceId === workspace.id) || []
 
+  const renderMembersTable = () => (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Name</TableHead>
+          <TableHead>Email</TableHead>
+          <TableHead>Role</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {detailedMembers.map((member) => (
+          <TableRow key={member.id}>
+            <TableCell>{`${member.firstName} ${member.lastName}`}</TableCell>
+            <TableCell>{member.email}</TableCell>
+            <TableCell>{member.roleId}</TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+
   return (
     <div className={`container mx-auto p-4 ${isEditDialogOpen ? "overflow-hidden h-screen" : ""}`}>
-      <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-2xl">{workspace.name}</CardTitle>
-            <span className="text-sm text-gray-500">Type: {workspace.type.toLowerCase()}</span>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"
-            onClick={() => setIsEditDialogOpen(true)}
-          >
-            <Pen className="h-4 w-4" />
-            <span className="sr-only">Edit</span>
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-700 mb-4">{workspace.description}</p>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+      {!isDashboard && (
+        <Card className="mb-6">
+          <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <strong>Created:</strong> {new Date(workspace.createdDate).toLocaleDateString()}
+              <CardTitle className="text-2xl">{workspace.name}</CardTitle>
+              <span className="text-sm text-gray-500">Type: {workspace.type.toLowerCase()}</span>
             </div>
-            <div>
-              <strong>Last Updated:</strong> {new Date(workspace.createdDate).toLocaleDateString()}
-            </div>
-            <div>
-              <strong>Owner:</strong> {workspace.createdBy}
-            </div>
-            <div>
-              <strong>Status:</strong> {workspace.type ? "Active" : "Inactive"}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {isLoadingMembersState || isLoadingDetails ? (
-        <div className="flex justify-center items-center h-20">
-          <Loader2 className="mr-2 h-8 w-8 animate-spin" />
-          <span>Loading members...</span>
-        </div>
-      ) : membersError ? (
-        <Alert variant="destructive">
-          <AlertTitle>Error</AlertTitle>
-          <AlertDescription>
-            {(membersError as Error).message}
-            <Button onClick={() => refetchMembers()} className="mt-2">
-              Retry
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"
+              onClick={() => setIsEditDialogOpen(true)}
+            >
+              <Pen className="h-4 w-4" />
+              <span className="sr-only">Edit</span>
             </Button>
-          </AlertDescription>
-        </Alert>
-      ) : (
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-700 mb-4">{workspace.description}</p>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <strong>Created:</strong> {new Date(workspace.createdDate).toLocaleDateString()}
+              </div>
+              <div>
+                <strong>Last Updated:</strong>{" "}
+                {new Date(workspace.createdDate).toLocaleDateString()}
+              </div>
+              <div>
+                <strong>Owner:</strong> {workspace.createdBy}
+              </div>
+              <div>
+                <strong>Status:</strong> {workspace.type ? "Active" : "Inactive"}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {projects.length > 0 && (
         <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-4">Members</h2>
+          <h2 className="text-2xl font-bold mb-4">Projects</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {detailedMembers.map((member) => (
-              <Card key={member.id}>
+            {projects.map((project) => (
+              <Card key={project.id}>
                 <CardHeader>
-                  <CardTitle>{`${member.firstName} ${member.lastName}`}</CardTitle>
+                  <CardTitle>{project.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-600 mb-2">{member.email}</p>
+                  <p className="text-sm text-gray-600 mb-2">{project.description}</p>
                   <div className="text-xs text-gray-500">
-                    <p>Role ID: {member.roleId}</p>
-                    <p>Workspace ID: {member.workspaceId}</p>
+                    <p>Start: {new Date(project.startDate).toLocaleDateString()}</p>
+                    <p>End: {new Date(project.endDate).toLocaleDateString()}</p>
+                    <p>Status: {project.status ? "Active" : "Inactive"}</p>
                   </div>
+                  <Button
+                    className="mt-2 w-full"
+                    variant="outline"
+                    onClick={() => navigate(`/projects/${project.id}/board`)}
+                  >
+                    View Project Board
+                  </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
       )}
+
+      <div ref={membersRef} className="mb-6">
+        <h2 className="text-2xl font-bold mb-4">Members</h2>
+        {isLoadingMembers || isLoadingDetails ? (
+          <div className="flex justify-center items-center h-20">
+            <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+            <span>Loading members...</span>
+          </div>
+        ) : membersError ? (
+          <Alert variant="destructive">
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>
+              {(membersError as Error).message}
+              <Button onClick={() => refetchMembers()} className="mt-2">
+                Retry
+              </Button>
+            </AlertDescription>
+          </Alert>
+        ) : (
+          renderMembersTable()
+        )}
+      </div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogOverlay className="bg-blue-100/80 backdrop-blur-sm" />
@@ -304,36 +343,6 @@ export function WorkspaceDetailsPage() {
           </form>
         </DialogContent>
       </Dialog>
-
-      {projects.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Projects</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((project) => (
-              <Card key={project.id}>
-                <CardHeader>
-                  <CardTitle>{project.name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-gray-600 mb-2">{project.description}</p>
-                  <div className="text-xs text-gray-500">
-                    <p>Start: {new Date(project.startDate).toLocaleDateString()}</p>
-                    <p>End: {new Date(project.endDate).toLocaleDateString()}</p>
-                    <p>Status: {project.status ? "Active" : "Inactive"}</p>
-                  </div>
-                  <Button
-                    className="mt-2 w-full"
-                    variant="outline"
-                    onClick={() => navigate(`/projects/${project.id}/board`)}
-                  >
-                    View Project Board
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

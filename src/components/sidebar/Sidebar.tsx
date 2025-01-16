@@ -1,52 +1,58 @@
-import React from "react"
-import "./Sidebar.css"
+import { NavLink, useLocation } from "react-router-dom"
+import { Home, Users } from "lucide-react"
 import { FaTrello } from "react-icons/fa"
-import { Link } from "react-router-dom"
-import { Project } from "@/hooks/projectHook"
+import "./Sidebar.css"
 
 export function Sidebar() {
-  //const { workspaceId } = useParams<{ workspaceId: string }>()
+  const currentWorkspaceIdDd = sessionStorage.getItem("currentWorkspaceIdDd")
 
   return (
     <div className="sidebar">
       <h2>Sidebar</h2>
 
-      <p>Workspce: Which will show all the projects onclick(Allow 2-3 projects in a workspace)</p>
       <ul>
         <li>
-          <Link to="/">Home</Link>
+          <NavLink to="/" className={({ isActive }) => (isActive ? "active" : "")}>
+            <Home className="sidebar-icon" />
+            Home
+          </NavLink>
         </li>
         <li>
-          <Link to="/dashboard">Dashboard</Link>
+          <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "active" : "")}>
+            Dashboard
+          </NavLink>
         </li>
-        {sessionStorage.getItem("membersVisible") == "true" && (
+        {currentWorkspaceIdDd && (
           <li>
-            <Link to={`/workspaces/${sessionStorage.getItem("currentWorkspaceIdDd")}/members`}>
+            <NavLink
+              to={`/workspaces/${currentWorkspaceIdDd}/members`}
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              <Users className="mr-2 h-4 w-4" />
               Members
-            </Link>
+            </NavLink>
           </li>
         )}
         <li>
           <h2>Boards</h2>
-          <Link to="/boards" className="sidebar-link">
+          <NavLink
+            to="/boards"
+            className={({ isActive }) => (isActive ? "active sidebar-link" : "sidebar-link")}
+          >
             <FaTrello className="sidebar-icon" />
             Boards
-          </Link>
+          </NavLink>
         </li>
         <li>
-          <Link to="/role">Role Management</Link>
+          <NavLink to="/role" className={({ isActive }) => (isActive ? "active" : "")}>
+            Role Management
+          </NavLink>
         </li>
-
         <li>
-          Your Projects:
-          <p>
-            1.It will have ... dots with options, 2.add button to add new project(board if u are
-            owner of the workspace) 3.Below this Which will show all the project a logged in user is
-            part of in that workspace
-          </p>
+          <h2>Your Projects</h2>
           <ul>
-            <li>project a</li>
-            <li>project b</li>
+            <li>Project A</li>
+            <li>Project B</li>
           </ul>
         </li>
       </ul>
