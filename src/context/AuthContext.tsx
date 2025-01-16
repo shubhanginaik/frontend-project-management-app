@@ -7,7 +7,7 @@ import {
   fetchWorkspaceDetails,
   WorkspaceDetails,
   WorkspaceDetailsResponse
-} from "@/api/Workspace"
+} from "@/api/WorkspaceUsers"
 
 interface DecodedToken {
   sub: string // This is the email
@@ -144,7 +144,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logoutMutation = useMutation({
     mutationFn: async () => {
       // Perform any logout API calls here if needed
-      localStorage.removeItem("workspaces")
       return Promise.resolve()
     },
     onSuccess: () => {
@@ -155,6 +154,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setFirstName(null)
       setWorkspaces([])
       sessionStorage.removeItem("token")
+      sessionStorage.removeItem("workspaces")
+      sessionStorage.removeItem("currentWorkspaceId")
+      sessionStorage.removeItem("currentWorkspaceIdDd")
+      sessionStorage.removeItem("membersVisible")
       queryClient.clear()
       console.log("Logged out")
     },

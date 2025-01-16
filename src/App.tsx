@@ -17,6 +17,7 @@ import "./App.css"
 import { Profile } from "./components/Profile"
 import { Settings } from "./components/Settings"
 import { ProjectBoardPage } from "./pages/dashboard/boards/ProjectBoardsPage"
+import { MembersPage } from "./pages/dashboard/workspaceDash/WorkspaceMembersPage"
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth()
@@ -56,10 +57,18 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/workspaces/:id"
+        path="/workspaces/:workspaceId"
         element={
           <ProtectedRoute>
             <WorkspaceDetailsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspaces/:workspaceId/members"
+        element={
+          <ProtectedRoute>
+            <MembersPage />
           </ProtectedRoute>
         }
       />

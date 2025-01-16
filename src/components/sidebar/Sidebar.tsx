@@ -4,6 +4,8 @@ import { FaTrello } from "react-icons/fa"
 import { Link } from "react-router-dom"
 
 export function Sidebar() {
+  //const { workspaceId } = useParams<{ workspaceId: string }>()
+
   return (
     <div className="sidebar">
       <h2>Sidebar</h2>
@@ -16,6 +18,13 @@ export function Sidebar() {
         <li>
           <Link to="/dashboard">Dashboard</Link>
         </li>
+        {sessionStorage.getItem("membersVisible") == "true" && (
+          <li>
+            <Link to={`/workspaces/${sessionStorage.getItem("currentWorkspaceIdDd")}/members`}>
+              Members
+            </Link>
+          </li>
+        )}
         <li>
           <h2>Boards</h2>
           <Link to="/boards" className="sidebar-link">
@@ -27,7 +36,6 @@ export function Sidebar() {
           <Link to="/role">Role Management</Link>
         </li>
 
-        <li>Members: Which will show allthe members of the workpaces</li>
         <li>
           Your Projects:
           <p>

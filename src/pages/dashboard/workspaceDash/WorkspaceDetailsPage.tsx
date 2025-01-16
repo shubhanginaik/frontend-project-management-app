@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { useLocation, useParams, useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/context/AuthContext"
-import { WorkspaceDetails } from "@/api/Workspace"
+import { WorkspaceDetails } from "@/api/WorkspaceUsers"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Loader2, Pen } from "lucide-react"
@@ -38,6 +38,15 @@ export function WorkspaceDetailsPage() {
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | undefined>(
     urlWorkspaceId || undefined
   )
+
+  useEffect(() => {
+    return () => {
+      localStorage.setItem("membersVisible", "false")
+      localStorage.removeItem("currentWorkspaceId")
+      localStorage.removeItem("currentWorkspaceIdDd")
+    }
+  }, [])
+
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editForm, setEditForm] = useState<WorkspaceUpdateScema>({})
 

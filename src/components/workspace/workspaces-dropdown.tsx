@@ -20,7 +20,8 @@ export function WorkspacesDropdown() {
   const handleWorkspaceSelect = (workspaceId: string) => {
     const selectedWorkspace = workspaces.find((workspace) => workspace.data.id === workspaceId)
     if (selectedWorkspace) {
-      sessionStorage.setItem("currentWorkspaceId", workspaceId)
+      sessionStorage.setItem("currentWorkspaceIdDd", workspaceId)
+      sessionStorage.setItem("membersVisible", "true")
       navigate(`/workspaces/${workspaceId}`, { state: { workspace: selectedWorkspace.data } })
     }
   }
