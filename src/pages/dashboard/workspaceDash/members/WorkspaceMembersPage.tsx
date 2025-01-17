@@ -122,7 +122,11 @@ export function MembersPage() {
       </Table>
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
-          <CreateMemberForm workspaceId={workspaceId} onClose={() => setIsModalOpen(false)} />
+          <CreateMemberForm
+            workspaceId={workspaceId}
+            onClose={() => setIsModalOpen(false)}
+            refetchMembers={refetch}
+          />
         </Modal>
       )}
     </div>
