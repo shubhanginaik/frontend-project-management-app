@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import { useAuth } from "@/context/AuthContext"
 import {
   Table,
   TableBody,
@@ -9,19 +10,25 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Loader2 } from "lucide-react"
+import { ImportIcon, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Modal } from "@/components/ui/Modal"
+import { CreateMemberForm } from "@/components/members/CreateMember-form"
+import { fetchRoleDetails } from "@/hooks/useRole"
 import {
   fetchUserDetails,
   useWorkspaceMembersByWorkspace,
   WorkspaceUserWithDetails
 } from "@/api/WorkspaceUsers"
-import { fetchRoleDetails } from "@/hooks/useRole"
 
 export function MembersPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { isAuthenticated } = useAuth()
 
-  if (!workspaceId) {
+  if (!isAuthenticated) {
+    return <div>Not authenticated</div>
+  } else if (!workspaceId) {
     return <div>No workspace ID found</div>
   }
 
@@ -51,6 +58,11 @@ export function MembersPage() {
     fetchDetails()
   }, [members])
 
+  const handleDelete = (memberId: string) => {
+    // Implement delete functionality here
+    console.log(`Delete member with ID: ${memberId}`)
+  }
+
   if (isLoading || isLoadingDetails) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -79,23 +91,40 @@ export function MembersPage() {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Name</TableHead>
-          <TableHead>Email</TableHead>
-          <TableHead>Role</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {detailedMembers.map((member) => (
-          <TableRow key={member.id}>
-            <TableCell>{`${member.firstName} ${member.lastName}`}</TableCell>
-            <TableCell>{member.email}</TableCell>
-            <TableCell>{member.roleName}</TableCell>
+    <div className="container mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-4">Members</h2>
+      <Button onClick={() => setIsModalOpen(true)}>Create New Member</Button>
+      <Table className="table mt-4">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+            <TableHead>Role</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Actions</TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {detailedMembers.map((member) => (
+            <TableRow key={member.id}>
+              <TableCell>{`${member.firstName} ${member.lastName}`}</TableCell>
+              <TableCell>{member.email}</TableCell>
+              <TableCell>{member.roleName}</TableCell>
+              <TableCell>Active</TableCell>
+              <TableCell>
+                <Button variant="destructive" onClick={() => handleDelete(member.id)}>
+                  Delete
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+      {isModalOpen && (
+        <Modal onClose={() => setIsModalOpen(false)}>
+          <CreateMemberForm workspaceId={workspaceId} onClose={() => setIsModalOpen(false)} />
+        </Modal>
+      )}
+    </div>
   )
 }

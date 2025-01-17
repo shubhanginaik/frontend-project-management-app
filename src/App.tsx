@@ -18,7 +18,7 @@ import "./App.css"
 import { Profile } from "./components/Profile"
 import { Settings } from "./components/Settings"
 import { ProjectBoardPage } from "./pages/dashboard/boards/ProjectBoardsPage"
-import { MembersPage } from "./pages/dashboard/workspaceDash/WorkspaceMembersPage"
+import { MembersPage } from "./pages/dashboard/workspaceDash/members/WorkspaceMembersPage"
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth()

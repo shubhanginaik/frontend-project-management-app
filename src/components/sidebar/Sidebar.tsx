@@ -4,7 +4,7 @@ import { FaTrello } from "react-icons/fa"
 import "./Sidebar.css"
 import { useAuth } from "@/context/AuthContext"
 import { useWorkspace } from "@/context/WokspaceContext"
-import { Button } from "../ui/button"
+import { Plus } from "lucide-react"
 
 export function Sidebar() {
   const { workspaceId } = useWorkspace()
@@ -17,7 +17,7 @@ export function Sidebar() {
       alert("No workspace ID found")
     }
   }
-  const currentWorkspaceIdDd = sessionStorage.getItem("currentWorkspaceIdDd")
+  //const currentWorkspaceIdDd = sessionStorage.getItem("currentWorkspaceIdDd")
 
   return (
     <div className="sidebar">
@@ -33,13 +33,12 @@ export function Sidebar() {
             Dashboard
           </NavLink>
         </li>
-        {currentWorkspaceIdDd && (
-          <li>
-            <Button onClick={handleMembersClick}>Workspace Member Management</Button>
-          </li>
-        )}
+
         <li>
-          <h2>Boards</h2>
+          <button onClick={handleMembersClick}>workspace Members</button>
+        </li>
+
+        <li>
           <NavLink
             to="/boards"
             className={({ isActive }) => (isActive ? "active sidebar-link" : "sidebar-link")}

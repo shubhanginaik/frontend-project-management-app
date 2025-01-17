@@ -1,43 +1,125 @@
+/* Sidebar container */
 .sidebar {
-  background-color: #f4f5f7;
-  padding: 20px;
-  background-color: var(--background-color);
-  color: var(--text-color);
+  width: 250px;
+  height: 100vh;
+  background-color: #441752; /* Deep Purple */
+  color: #ffffff; /* White text */
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-right: 3px solid #8174a0; /* Muted Purple Border */
 }
 
-.sidebar h2 {
-  font-size: 16px;
-  color: var(--text-color);
-  margin-bottom: 10px;
-  margin-top: 0;
-}
-
+/* Sidebar list styles */
 .sidebar ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.sidebar li {
-  padding: 8px 0;
-  margin-bottom: 1rem;
-  color: var(--text-color);
-  cursor: pointer;
+.sidebar ul li {
+  margin-bottom: 15px;
 }
 
-.sidebar li:hover {
-  color: #3d3c3c;
+/* Sidebar headings */
+.sidebar h2 {
+  font-size: 1rem;
+  color: #d2c5df; /* Muted White */
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   font-weight: bold;
 }
 
-.sidebar-link {
+/* Sidebar links */
+.sidebar a {
   display: flex;
   align-items: center;
+  font-size: 1rem;
   text-decoration: none;
-  color: #676363;
+  color: #ffffff; /* White text */
+  padding: 12px 15px;
+  border-radius: 8px;
+  background-color: #a888b5; /* Lighter Purple */
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  font-weight: 500;
 }
 
-.sidebar-icon {
-  margin-right: 0.5rem;
-  background-color: #f4f5f7;
+.sidebar a .sidebar-icon {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+/* Hover effect for links */
+.sidebar a:hover {
+  background-color: #8174a0; /* Muted Purple */
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Active link styles */
+.sidebar a.active {
+  background-color: #efb6c8; /* Soft Pink */
+  color: #441752; /* Deep Purple text */
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(239, 182, 200, 0.4);
+}
+
+/* Button styles */
+.sidebar button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 15px;
+  background-color: #efb6c8; /* Soft Pink */
+  color: #441752; /* Deep Purple text */
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s, transform 0.2s;
+  font-weight: bold;
+}
+
+.sidebar button:hover {
+  background-color: #a888b5; /* Lighter Purple */
+  color: #ffffff; /* White text on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Project list */
+.sidebar ul ul {
+  margin-left: 15px;
+  margin-top: 5px;
+}
+
+.sidebar ul ul li {
+  font-size: 0.9rem;
+  color: #ffffff; /* White text */
+  margin-bottom: 8px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .sidebar a {
+    font-size: 0.9rem;
+    padding: 10px 10px;
+  }
+
+  .sidebar h2 {
+    font-size: 0.85rem;
+  }
+
+  .sidebar button {
+    font-size: 0.9rem;
+    padding: 10px 10px;
+  }
 }
