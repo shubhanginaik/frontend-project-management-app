@@ -1,5 +1,10 @@
 import api from "@/api"
+import { fetchRoleDetails } from "@/hooks/useRole"
 import { useQuery } from "@tanstack/react-query"
+
+export interface WorkspaceUserWithDetails extends WorkspaceUsersByWorkspaceId, Users {
+  roleName: string
+}
 
 export interface Workspaceuser {
   id: string
@@ -115,12 +120,6 @@ export const fetchWorkspaceMembersByWorkspace = async (
   return response.data
 }
 
-// export const useWorkspaceMembersByWorkspace = (workspaceId: string) => {
-//   return useQuery({
-//     queryKey: ["workspace-members", workspaceId],
-//     queryFn: () => fetchWorkspaceMembersByWorkspace(workspaceId)
-//   })
-// }
 export const fetchUserDetails = async (userId: string): Promise<UsersResponse> => {
   const response = await api.get<UsersResponse>(`/users/${userId}`)
   return response.data
@@ -131,12 +130,14 @@ export const useWorkspaceMembersByWorkspace = (workspaceId: string) => {
     queryKey: ["workspace-users", workspaceId],
     queryFn: async () => {
       const workspaceMembersResponse = await fetchWorkspaceMembersByWorkspace(workspaceId)
-      const membersWithDetails = await Promise.all(
+      const membersWithDetails: WorkspaceUserWithDetails[] = await Promise.all(
         workspaceMembersResponse.data.map(async (member) => {
           const userDetails = await fetchUserDetails(member.userId)
+          const roleDetails = await fetchRoleDetails(member.roleId)
           return {
             ...member,
-            ...userDetails.data
+            ...userDetails.data,
+            roleName: roleDetails.data.name
           }
         })
       )

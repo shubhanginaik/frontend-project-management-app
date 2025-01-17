@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from "react-router-dom"
+import { NavLink, useLocation, useParams } from "react-router-dom"
 import { Home, Users } from "lucide-react"
 import { FaTrello } from "react-icons/fa"
 import "./Sidebar.css"
@@ -8,8 +8,6 @@ export function Sidebar() {
 
   return (
     <div className="sidebar">
-      <h2>Sidebar</h2>
-
       <ul>
         <li>
           <NavLink to="/" className={({ isActive }) => (isActive ? "active" : "")}>

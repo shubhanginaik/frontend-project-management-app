@@ -19,8 +19,8 @@ export function MembersPage() {
     workspaceIdDd = sessionStorage.getItem("currentWorkspaceIdDd")
   }
   //const { workspaceId } = useParams<{ workspaceId: string }>()
-  if (workspaceIdDd === null) {
-    return
+  if (!workspaceIdDd) {
+    return <div>No workspace ID found</div>
   }
   const {
     data: members,

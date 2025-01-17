@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react"
 import { useLocation, useParams, useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/context/AuthContext"
-import { WorkspaceDetails } from "@/api/WorkspaceUsers"
+import { WorkspaceDetails, WorkspaceUserWithDetails } from "@/api/WorkspaceUsers"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Loader2, Pen, Plus } from "lucide-react"
@@ -27,12 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "@/components/ui/use-toast"
 import { useUpdateWorkspace, Workspace, WorkspaceUpdateScema } from "@/hooks/useWorkspaces"
-import {
-  fetchUserDetails,
-  Users,
-  useWorkspaceMembersByWorkspace,
-  WorkspaceUsersByWorkspaceId
-} from "@/api/WorkspaceUsers"
+import { fetchUserDetails, useWorkspaceMembersByWorkspace } from "@/api/WorkspaceUsers"
 import {
   Table,
   TableBody,
@@ -42,6 +37,7 @@ import {
   TableRow
 } from "@/components/ui/table"
 import "./workspaceDetailsPage.css"
+import { fetchRoleDetails } from "@/hooks/useRole"
 
 export function WorkspaceDetailsPage() {
   const { workspaceId: urlWorkspaceId } = useParams<{ workspaceId: string }>()
@@ -80,9 +76,7 @@ export function WorkspaceDetailsPage() {
     refetch: refetchMembers
   } = useWorkspaceMembersByWorkspace(workspaceIdDd!)
 
-  const [detailedMembers, setDetailedMembers] = useState<(WorkspaceUsersByWorkspaceId & Users)[]>(
-    []
-  )
+  const [detailedMembers, setDetailedMembers] = useState<WorkspaceUserWithDetails[]>([])
   const [isLoadingDetails, setIsLoadingDetails] = useState(true)
 
   const membersRef = useRef<HTMLDivElement>(null)
@@ -99,16 +93,19 @@ export function WorkspaceDetailsPage() {
   useEffect(() => {
     const fetchDetails = async () => {
       if (membersData) {
-        const membersWithDetails = await Promise.all(
+        const membersWithDetails: WorkspaceUserWithDetails[] = await Promise.all(
           membersData.map(async (member) => {
             const userDetails = await fetchUserDetails(member.userId)
+            const roleDetails = await fetchRoleDetails(member.roleId)
             return {
               ...member,
-              ...userDetails.data
+              ...userDetails.data,
+              roleName: roleDetails.data.name
             }
           })
         )
         setDetailedMembers(membersWithDetails)
+        console.log("membersWithDetails", membersWithDetails)
         setIsLoadingDetails(false)
       }
     }
@@ -254,7 +251,7 @@ export function WorkspaceDetailsPage() {
           <TableRow key={member.id}>
             <TableCell>{`${member.firstName} ${member.lastName}`}</TableCell>
             <TableCell>{member.email}</TableCell>
-            <TableCell>{member.roleId}</TableCell>
+            <TableCell>{member.roleName}</TableCell>
           </TableRow>
         ))}
       </TableBody>
@@ -401,6 +398,11 @@ export function WorkspaceDetailsPage() {
       </>
 
       <div ref={membersRef} className="mb-6">
+        <h1>
+          <Button onClick={() => navigate(`/workspaces/${workspace.id}/members`)} className="mt-4">
+            Workspace Member Management
+          </Button>
+        </h1>
         <h2 className="text-2xl font-bold mb-4">Members</h2>
         {isLoadingMembers || isLoadingDetails ? (
           <div className="flex justify-center items-center h-20">
