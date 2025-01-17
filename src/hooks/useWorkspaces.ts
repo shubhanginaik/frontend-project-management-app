@@ -17,7 +17,7 @@ export interface WorkspaceResponse {
   data: Workspace
   status: string
   code: number
-  errors: null | any
+  errors: []
 }
 
 interface CreateWorkspaceSchema {

@@ -85,6 +85,18 @@ export interface WorkspaceUsersByWorkspaceIdResponse {
   code: number
   errors: null | unknown
 }
+export interface AddUserToWorkspaceRequest {
+  userId: string
+  workspaceId: string
+  roleId: string
+}
+
+export interface AddUserToWorkspaceResponse {
+  data: WorkspaceMemberToShow
+  status: string
+  code: number
+  errors: []
+}
 
 export interface Users {
   id: string
@@ -144,4 +156,11 @@ export const useWorkspaceMembersByWorkspace = (workspaceId: string) => {
       return membersWithDetails
     }
   })
+}
+
+export const addWorkspaceUserWithRoleRole = async (
+  data: AddUserToWorkspaceRequest
+): Promise<AddUserToWorkspaceResponse> => {
+  const response = await api.post<AddUserToWorkspaceResponse>(`/workspace-users`, data)
+  return response.data
 }
