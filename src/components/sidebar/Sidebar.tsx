@@ -1,9 +1,22 @@
-import { NavLink, useLocation, useParams } from "react-router-dom"
+import { NavLink, useLocation, useNavigate, useParams } from "react-router-dom"
 import { Home, Users } from "lucide-react"
 import { FaTrello } from "react-icons/fa"
 import "./Sidebar.css"
+import { useAuth } from "@/context/AuthContext"
+import { useWorkspace } from "@/context/WokspaceContext"
+import { Button } from "../ui/button"
 
 export function Sidebar() {
+  const { workspaceId } = useWorkspace()
+  const navigate = useNavigate()
+
+  const handleMembersClick = () => {
+    if (workspaceId) {
+      navigate(`/workspaces/${workspaceId}/members`)
+    } else {
+      alert("No workspace ID found")
+    }
+  }
   const currentWorkspaceIdDd = sessionStorage.getItem("currentWorkspaceIdDd")
 
   return (
@@ -22,13 +35,7 @@ export function Sidebar() {
         </li>
         {currentWorkspaceIdDd && (
           <li>
-            <NavLink
-              to={`/workspaces/${currentWorkspaceIdDd}/members`}
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <Users className="mr-2 h-4 w-4" />
-              Members
-            </NavLink>
+            <Button onClick={handleMembersClick}>Workspace Member Management</Button>
           </li>
         )}
         <li>

@@ -38,9 +38,11 @@ import {
 } from "@/components/ui/table"
 import "./workspaceDetailsPage.css"
 import { fetchRoleDetails } from "@/hooks/useRole"
+import { useWorkspace } from "@/context/WokspaceContext"
 
 export function WorkspaceDetailsPage() {
   const { workspaceId: urlWorkspaceId } = useParams<{ workspaceId: string }>()
+  const { setWorkspaceId } = useWorkspace()
   const { workspaces, userId } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
@@ -66,6 +68,12 @@ export function WorkspaceDetailsPage() {
   const addProjectMutation = useAddProject()
 
   const workspaceIdDd = currentWorkspaceId || sessionStorage.getItem("currentWorkspaceId")
+
+  useEffect(() => {
+    if (urlWorkspaceId) {
+      setWorkspaceId(urlWorkspaceId)
+    }
+  }, [urlWorkspaceId, setWorkspaceId])
   interface Props {
     workspace: Workspace
   }
@@ -398,11 +406,6 @@ export function WorkspaceDetailsPage() {
       </>
 
       <div ref={membersRef} className="mb-6">
-        <h1>
-          <Button onClick={() => navigate(`/workspaces/${workspace.id}/members`)} className="mt-4">
-            Workspace Member Management
-          </Button>
-        </h1>
         <h2 className="text-2xl font-bold mb-4">Members</h2>
         {isLoadingMembers || isLoadingDetails ? (
           <div className="flex justify-center items-center h-20">

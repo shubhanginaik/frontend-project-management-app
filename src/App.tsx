@@ -2,6 +2,7 @@ import React from "react"
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom"
 import { AuthProvider, useAuth } from "@/context/AuthContext"
 import { Home } from "@/pages/home/home"
+import { WorkspaceProvider } from "@/context/WokspaceContext"
 import { LoginPage } from "@/pages/login"
 import { KanbanBoard } from "@/components/board/kanban-board"
 import { DashboardPage } from "@/pages/dashboard"
@@ -119,19 +120,21 @@ function AppRoutes() {
 export function App() {
   return (
     <AuthProvider>
-      <div className="app">
-        <div className="header">
-          <Header />
-        </div>
-        <div className="layout">
-          <div className="sidebar">
-            <Sidebar />
+      <WorkspaceProvider>
+        <div className="app">
+          <div className="header">
+            <Header />
           </div>
-          <div className="main-content">
-            <AppRoutes />
+          <div className="layout">
+            <div className="sidebar">
+              <Sidebar />
+            </div>
+            <div className="main-content">
+              <AppRoutes />
+            </div>
           </div>
         </div>
-      </div>
+      </WorkspaceProvider>
     </AuthProvider>
   )
 }
