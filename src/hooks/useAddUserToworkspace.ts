@@ -2,11 +2,11 @@ import { useMutation } from "@tanstack/react-query"
 import {
   AddUserToWorkspaceRequest,
   AddUserToWorkspaceResponse,
-  addWorkspaceUserWithRoleRole
+  addWorkspaceUserWithRole
 } from "@/api/WorkspaceUsers"
 
 export const useAddUserToWorkspace = () => {
   return useMutation<AddUserToWorkspaceResponse, Error, AddUserToWorkspaceRequest>({
-    mutationFn: (data: AddUserToWorkspaceRequest) => addWorkspaceUserWithRoleRole(data)
+    mutationFn: (data: AddUserToWorkspaceRequest) => addWorkspaceUserWithRole(data)
   })
 }

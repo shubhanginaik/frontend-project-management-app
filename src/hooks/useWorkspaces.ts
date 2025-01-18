@@ -1,5 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import api from "@/api"
+import { useQuery } from "@tanstack/react-query"
+import {
+  getWorkspaceUserByWorkspaceIdAndUserId,
+  WorkspaceUsersByWorkspaceIdUserIdResponse
+} from "@/api/WorkspaceUsers"
 
 // ... (keep existing code)
 
@@ -71,5 +76,12 @@ export const useUpdateWorkspace = () => {
       queryClient.invalidateQueries({ queryKey: ["workspaces"] })
       queryClient.invalidateQueries({ queryKey: ["workspace", variables.workspaceId] })
     }
+  })
+}
+
+export const useGetWorkspaceUser = (userId: string, workspaceId: string) => {
+  return useQuery<WorkspaceUsersByWorkspaceIdUserIdResponse, Error>({
+    queryKey: ["workspaceUser", workspaceId, userId],
+    queryFn: () => getWorkspaceUserByWorkspaceIdAndUserId(workspaceId, userId)
   })
 }

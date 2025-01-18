@@ -35,7 +35,7 @@ export function Sidebar() {
         </li>
 
         <li>
-          <button onClick={handleMembersClick}>workspace Members</button>
+          <button onClick={handleMembersClick}>Workspace Members</button>
         </li>
 
         <li>

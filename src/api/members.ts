@@ -32,3 +32,19 @@ export const createUser = async (data: CreateUserRequest): Promise<UserResponseS
   const response = await api.post<UserResponseSchema>("/users", data)
   return response.data
 }
+export interface DeleteUserResponse {
+  data: Record<string, never>
+  status: string
+  code: number
+  errors: []
+}
+
+export const getUserById = async (userId: string): Promise<UserResponseSchema> => {
+  const response = await api.get<UserResponseSchema>(`/users/${userId}`)
+  return response.data
+}
+
+export const deleteUserById = async (userId: string): Promise<DeleteUserResponse> => {
+  const response = await api.delete<DeleteUserResponse>(`/users/${userId}`)
+  return response.data
+}

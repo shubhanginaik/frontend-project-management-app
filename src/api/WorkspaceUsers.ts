@@ -85,6 +85,13 @@ export interface WorkspaceUsersByWorkspaceIdResponse {
   code: number
   errors: null | unknown
 }
+
+export interface WorkspaceUsersByWorkspaceIdUserIdResponse {
+  data: Workspaceuser
+  status: string
+  code: number
+  errors: []
+}
 export interface AddUserToWorkspaceRequest {
   userId: string
   workspaceId: string
@@ -158,9 +165,43 @@ export const useWorkspaceMembersByWorkspace = (workspaceId: string) => {
   })
 }
 
-export const addWorkspaceUserWithRoleRole = async (
+export const addWorkspaceUserWithRole = async (
   data: AddUserToWorkspaceRequest
 ): Promise<AddUserToWorkspaceResponse> => {
   const response = await api.post<AddUserToWorkspaceResponse>(`/workspace-users`, data)
+  return response.data
+}
+
+export const getWorkspaceUserByUserAndWorkspaceId = async (
+  userId: string,
+  workspaceId: string
+): Promise<WorkspaceUsersByWorkspaceIdUserIdResponse> => {
+  const response = await api.get<WorkspaceUsersByWorkspaceIdUserIdResponse>(
+    `/workspace-users/${userId}/${workspaceId}`
+  )
+  return response.data
+}
+
+export interface deleteWorkspaceUserResponse {
+  data: string
+  status: string
+  code: number
+  errors: []
+}
+
+export const getWorkspaceUserByWorkspaceIdAndUserId = async (
+  userId: string,
+  workspaceId: string
+): Promise<WorkspaceUsersByWorkspaceIdUserIdResponse> => {
+  const response = await api.get<WorkspaceUsersByWorkspaceIdUserIdResponse>(
+    `/workspace-users/${userId}/${workspaceId}`
+  )
+  return response.data
+}
+
+export const deleteUserFromWorkspaceUsers = async (
+  id: string
+): Promise<deleteWorkspaceUserResponse> => {
+  const response = await api.delete<deleteWorkspaceUserResponse>(`/workspace-users/${id}`)
   return response.data
 }
