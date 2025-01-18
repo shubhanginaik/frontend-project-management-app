@@ -271,17 +271,26 @@ export function WorkspaceDetailsPage() {
       <Card className="mb-6">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle className="text-2xl">{workspace.name}</CardTitle>
+            <div className="flex items-center space-x-2">
+              <CardTitle className="text-2xl">{workspace.name}</CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-[#a888b5] text-white hover:bg-[#8a6b9b] rounded-full"
+                onClick={() => setIsEditDialogOpen(true)}
+              >
+                <Pen className="h-4 w-4" />
+                <span className="sr-only">Edit</span>
+              </Button>
+            </div>
             <span className="text-sm text-gray-500">Type: {workspace.type.toLowerCase()}</span>
           </div>
+
           <Button
             variant="ghost"
-            size="icon"
-            className="hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full"
-            onClick={() => setIsEditDialogOpen(true)}
+            className="bg-[#a888b5] text-white hover:bg-[#8a6b9b] rounded-full"
           >
-            <Pen className="h-4 w-4" />
-            <span className="sr-only">Edit</span>
+            Invite Workspace Member
           </Button>
         </CardHeader>
         <CardContent>
@@ -430,50 +439,56 @@ export function WorkspaceDetailsPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogOverlay className="bg-blue-100/80 backdrop-blur-sm" />
         <DialogContent className="bg-white dark:bg-gray-800">
-          <DialogHeader>
-            <DialogTitle>Edit Workspace</DialogTitle>
-          </DialogHeader>
-          <form onSubmit={handleEditSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                value={editForm.name || ""}
-                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                placeholder={workspace.name}
-              />
-            </div>
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={editForm.description || ""}
-                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                placeholder={workspace.description}
-              />
-            </div>
-            <div>
-              <Label htmlFor="type">Type</Label>
-              <Select
-                onValueChange={(value) =>
-                  setEditForm({ ...editForm, type: value as WorkspaceUpdateScema["type"] })
-                }
-                defaultValue={workspace.type}
+          <DialogDescription>
+            <DialogHeader>
+              <DialogTitle>Edit Workspace</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={editForm.name || ""}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  placeholder={workspace.name}
+                />
+              </div>
+              <div>
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={editForm.description || ""}
+                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                  placeholder={workspace.description}
+                />
+              </div>
+              <div>
+                <Label htmlFor="type">Type</Label>
+                <Select
+                  onValueChange={(value) =>
+                    setEditForm({ ...editForm, type: value as WorkspaceUpdateScema["type"] })
+                  }
+                  defaultValue={workspace.type}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select workspace type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PRIVATE">Private</SelectItem>
+                    <SelectItem value="PUBLIC">Public</SelectItem>
+                    <SelectItem value="SHARED">Shared</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                className="bg-[#a888b5] text-white hover:bg-[#8a6b9b] rounded-full"
+                type="submit"
+                disabled={updateWorkspaceMutation.isPending}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select workspace type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="PRIVATE">Private</SelectItem>
-                  <SelectItem value="PUBLIC">Public</SelectItem>
-                  <SelectItem value="SHARED">Shared</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Button type="submit" disabled={updateWorkspaceMutation.isPending}>
-              {updateWorkspaceMutation.isPending ? "Updating..." : "Update Workspace"}
-            </Button>
-          </form>
+                {updateWorkspaceMutation.isPending ? "Updating..." : "Update Workspace"}
+              </Button>
+            </form>
+          </DialogDescription>
         </DialogContent>
       </Dialog>
     </div>
