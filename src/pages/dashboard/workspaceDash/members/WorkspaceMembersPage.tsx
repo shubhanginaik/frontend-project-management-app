@@ -146,7 +146,7 @@ export function MembersPage() {
               <AlertDescription>{message.text}</AlertDescription>
               <Button
                 onClick={() => setMessage(null)}
-                className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+                className="mt-4 bg-[#efb6c8] text-white px-4 py-2 rounded hover:bg-[#dba4b3]"
               >
                 Close
               </Button>

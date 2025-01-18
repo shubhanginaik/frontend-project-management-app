@@ -2,13 +2,13 @@
 .sidebar {
   width: 250px;
   height: 100vh;
-  background-color: #441752; /* Deep Purple */
+  /*background-color: #441752; /* Deep Purple */
   color: #ffffff; /* White text */
   padding: 20px 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  border-right: 3px solid #8174a0; /* Muted Purple Border */
+  /*border-right: 3px solid #8174a0; /* Muted Purple Border */
 }
 
 /* Sidebar list styles */
