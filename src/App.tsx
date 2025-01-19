@@ -75,7 +75,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/projects/:projectId/board"
+        path="/projects/:projectId"
         element={
           <ProtectedRoute>
             <ProjectBoardPage />

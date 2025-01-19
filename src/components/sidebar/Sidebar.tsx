@@ -1,13 +1,12 @@
 import { NavLink, useLocation, useNavigate, useParams } from "react-router-dom"
-import { Home, Users } from "lucide-react"
+import { Home } from "lucide-react"
 import { FaTrello } from "react-icons/fa"
 import "./Sidebar.css"
-import { useAuth } from "@/context/AuthContext"
 import { useWorkspace } from "@/context/WokspaceContext"
-import { Plus } from "lucide-react"
+import { Button } from "../ui/button"
 
 export function Sidebar() {
-  const { workspaceId } = useWorkspace()
+  const { workspaceId, pinnedProjects } = useWorkspace()
   const navigate = useNavigate()
 
   const handleMembersClick = () => {
@@ -17,7 +16,6 @@ export function Sidebar() {
       alert("No workspace ID found")
     }
   }
-  //const currentWorkspaceIdDd = sessionStorage.getItem("currentWorkspaceIdDd")
 
   return (
     <div className="sidebar">
@@ -53,11 +51,21 @@ export function Sidebar() {
           </NavLink>
         </li>
         <li>
-          <h2>Your Projects</h2>
-          <ul>
-            <li>Project A</li>
-            <li>Project B</li>
-          </ul>
+          <div className="pinned-projects">
+            <div className="flex items-center">
+              <FaTrello className="sidebar-icon" />
+              <h3 className="ml-2">Boards</h3>
+            </div>
+            {pinnedProjects.map((project) => (
+              <NavLink
+                key={project.id}
+                to={`/projects/${project.id}`}
+                className={({ isActive }) => (isActive ? "active sidebar-link" : "sidebar-link")}
+              >
+                {project.name}
+              </NavLink>
+            ))}
+          </div>
         </li>
       </ul>
     </div>

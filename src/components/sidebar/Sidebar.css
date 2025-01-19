@@ -102,6 +102,10 @@
   color: #ffffff; /* White text */
   margin-bottom: 8px;
 }
+.pinned-projects .sidebar-link {
+  display: block;
+  margin-bottom: 10px; /* Add spacing between pinned projects */
+}
 
 /* Responsive styles */
 @media (max-width: 768px) {

@@ -45,7 +45,7 @@ import { useGetAllUsers } from "@/hooks/useFetchUser"
 
 export function WorkspaceDetailsPage() {
   const { workspaceId: urlWorkspaceId } = useParams<{ workspaceId: string }>()
-  const { setWorkspaceId } = useWorkspace()
+  const { setWorkspaceId, pinProject } = useWorkspace()
   const { workspaces, userId } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
@@ -337,6 +337,13 @@ export function WorkspaceDetailsPage() {
     </Table>
   )
 
+  const handleViewProject = (projectId: string, projectName: string) => {
+    if (projectId && projectName) {
+      pinProject({ id: projectId, name: projectName })
+      navigate(`/projects/${projectId}`)
+    }
+  }
+
   return (
     <div className={`container mx-auto p-4 ${isEditDialogOpen ? "overflow-hidden h-screen" : ""}`}>
       <Card className="mb-6">
@@ -410,7 +417,7 @@ export function WorkspaceDetailsPage() {
                   <Button
                     className="mt-2 w-full"
                     variant="outline"
-                    onClick={() => navigate(`/projects/${project.id}/board`)}
+                    onClick={() => handleViewProject(project.id, project.name)}
                   >
                     View Project Board
                   </Button>
