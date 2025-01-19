@@ -565,32 +565,31 @@ export function WorkspaceDetailsPage() {
           <DialogHeader>
             <DialogTitle>Invite User to Workspace</DialogTitle>
           </DialogHeader>
-          <DialogDescription>
-            <div className="space-y-4">
-              {isLoadingUsers ? (
-                <div className="flex justify-center items-center h-20">
-                  <Loader2 className="mr-2 h-8 w-8 animate-spin" />
-                  <span>Loading users...</span>
+          <DialogDescription>Please select a user to invite to the workspace.</DialogDescription>
+          <div className="space-y-4">
+            {isLoadingUsers ? (
+              <div className="flex justify-center items-center h-20">
+                <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+                <span>Loading users...</span>
+              </div>
+            ) : (
+              usersData?.data?.map((user) => (
+                <div key={user.id} className="flex items-center justify-between">
+                  <span>{user.email}</span>
+                  <Button
+                    onClick={() => handleInvite(user.id)}
+                    disabled={isUserMember(user.id) || isInviting}
+                  >
+                    {isUserMember(user.id)
+                      ? "Already a member"
+                      : isInviting
+                      ? "Inviting..."
+                      : "Invite"}
+                  </Button>
                 </div>
-              ) : (
-                usersData?.data?.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between">
-                    <span>{user.email}</span>
-                    <Button
-                      onClick={() => handleInvite(user.id)}
-                      disabled={isUserMember(user.id) || isInviting}
-                    >
-                      {isUserMember(user.id)
-                        ? "Already a member"
-                        : isInviting
-                        ? "Inviting..."
-                        : "Invite"}
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
-          </DialogDescription>
+              ))
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
