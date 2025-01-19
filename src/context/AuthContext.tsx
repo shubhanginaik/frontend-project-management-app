@@ -5,7 +5,6 @@ import api from "@/api"
 import {
   fetchWorkspaceUsers,
   fetchWorkspaceDetails,
-  WorkspaceDetails,
   WorkspaceDetailsResponse
 } from "@/api/WorkspaceUsers"
 

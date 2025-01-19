@@ -28,6 +28,13 @@ export interface UserResponseSchema {
   errors: []
 }
 
+export interface UserGelAllResponseSchema {
+  data: CreateUserResponse[]
+  status: string
+  code: number
+  errors: []
+}
+
 export const createUser = async (data: CreateUserRequest): Promise<UserResponseSchema> => {
   const response = await api.post<UserResponseSchema>("/users", data)
   return response.data
@@ -46,5 +53,10 @@ export const getUserById = async (userId: string): Promise<UserResponseSchema> =
 
 export const deleteUserById = async (userId: string): Promise<DeleteUserResponse> => {
   const response = await api.delete<DeleteUserResponse>(`/users/${userId}`)
+  return response.data
+}
+
+export const getAllUsers = async (): Promise<UserGelAllResponseSchema> => {
+  const response = await api.get<UserGelAllResponseSchema>("/users")
   return response.data
 }

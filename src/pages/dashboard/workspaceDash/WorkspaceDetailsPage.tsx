@@ -37,8 +37,11 @@ import {
   TableRow
 } from "@/components/ui/table"
 import "./workspaceDetailsPage.css"
-import { fetchRoleDetails } from "@/hooks/useRole"
+import { fetchAllRoles, fetchRoleDetails, Role } from "@/hooks/useRole"
 import { useWorkspace } from "@/context/WokspaceContext"
+import { useQueryClient } from "@tanstack/react-query"
+import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
+import { useGetAllUsers } from "@/hooks/useFetchUser"
 
 export function WorkspaceDetailsPage() {
   const { workspaceId: urlWorkspaceId } = useParams<{ workspaceId: string }>()
@@ -67,6 +70,13 @@ export function WorkspaceDetailsPage() {
   const updateWorkspaceMutation = useUpdateWorkspace()
   const addProjectMutation = useAddProject()
 
+  const [roles, setRoles] = useState<Role[]>([])
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [isInviting, setIsInviting] = useState(false)
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { data: usersData, isLoading: isLoadingUsers } = useGetAllUsers()
+
   const workspaceIdDd = currentWorkspaceId || sessionStorage.getItem("currentWorkspaceId")
 
   useEffect(() => {
@@ -83,6 +93,66 @@ export function WorkspaceDetailsPage() {
     error: membersError,
     refetch: refetchMembers
   } = useWorkspaceMembersByWorkspace(workspaceIdDd!)
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const rolesResponse = await fetchAllRoles()
+        setRoles(rolesResponse.data)
+        const adminRole = rolesResponse.data.find((role) => role.name === "ADMIN")
+        if (adminRole && membersData) {
+          console.log("membersData:", membersData)
+          console.log("userId:", userId)
+          const userMemberData = membersData.find((member) => member.userId === userId)
+          console.log("userMemberData:", userMemberData)
+          console.log("adminRole.id:", adminRole.id)
+          setIsAdmin(userMemberData?.roleId === adminRole.id)
+          console.log("inside use effect Is admin", userMemberData?.roleId === adminRole.id)
+        }
+      } catch (error) {
+        console.error("Failed to fetch roles:", error)
+      }
+    }
+
+    fetchRoles()
+  }, [membersData, userId])
+
+  const addUserToWorkspaceMutation = useAddUserToWorkspace()
+
+  const handleInvite = (userId: string) => {
+    if (!isAdmin) {
+      toast({
+        title: "Error",
+        description: "You do not have permission to add members to this workspace.",
+        variant: "destructive"
+      })
+      setIsInviteDialogOpen(false)
+      return
+    }
+
+    const memberRole = roles.find((role) => role.name === "MEMBER")
+    if (!memberRole) {
+      console.error("Member role not found")
+      return
+    }
+    const roleId = memberRole.id
+
+    setIsInviting(true)
+    addUserToWorkspaceMutation.mutate(
+      { workspaceId: workspace.id, userId, roleId },
+      {
+        onSuccess: () => {
+          refetchMembers()
+          setIsInviting(false)
+        },
+        onError: () => {
+          setIsInviting(false)
+        }
+      }
+    )
+  }
+
+  const isUserMember = (userId: string) => membersData?.some((member) => member.userId === userId)
 
   const [detailedMembers, setDetailedMembers] = useState<WorkspaceUserWithDetails[]>([])
   const [isLoadingDetails, setIsLoadingDetails] = useState(true)
@@ -289,8 +359,9 @@ export function WorkspaceDetailsPage() {
           <Button
             variant="ghost"
             className="bg-[#a888b5] text-white hover:bg-[#8a6b9b] rounded-full"
+            onClick={() => setIsInviteDialogOpen(true)}
           >
-            Invite Workspace Member
+            Add Workspace Member
           </Button>
         </CardHeader>
         <CardContent>
@@ -298,9 +369,6 @@ export function WorkspaceDetailsPage() {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <strong>Created:</strong> {new Date(workspace.createdDate).toLocaleDateString()}
-            </div>
-            <div>
-              <strong>Last Updated:</strong> {new Date(workspace.createdDate).toLocaleDateString()}
             </div>
             <div>
               <strong>Owner:</strong> {workspace.createdBy}
@@ -357,12 +425,12 @@ export function WorkspaceDetailsPage() {
         <Dialog open={isAddProjectDialogOpen} onOpenChange={setIsAddProjectDialogOpen}>
           <DialogOverlay className="bg-blue-100/80 backdrop-blur-sm" />
           <DialogContent className="bg-white dark:bg-gray-800">
-            <DialogDescription>
-              Please fill in the details below to add a new project.
-            </DialogDescription>
             <DialogHeader>
               <DialogTitle>Add New Project</DialogTitle>
             </DialogHeader>
+            <DialogDescription>
+              <div>Please fill in the details below to add a new project.</div>
+            </DialogDescription>
             <form onSubmit={handleAddProjectSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="projectName">Project Name</Label>
@@ -395,7 +463,6 @@ export function WorkspaceDetailsPage() {
                 />
               </div>
               <div>
-                {" "}
                 <Label htmlFor="projectstatus"> Status</Label>
                 <Input
                   id="projectstatus"
@@ -439,10 +506,10 @@ export function WorkspaceDetailsPage() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogOverlay className="bg-blue-100/80 backdrop-blur-sm" />
         <DialogContent className="bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle>Edit Workspace</DialogTitle>
+          </DialogHeader>
           <DialogDescription>
-            <DialogHeader>
-              <DialogTitle>Edit Workspace</DialogTitle>
-            </DialogHeader>
             <form onSubmit={handleEditSubmit} className="space-y-4">
               <div>
                 <Label htmlFor="name">Name</Label>
@@ -488,6 +555,41 @@ export function WorkspaceDetailsPage() {
                 {updateWorkspaceMutation.isPending ? "Updating..." : "Update Workspace"}
               </Button>
             </form>
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+        <DialogOverlay className="bg-blue-100/80 backdrop-blur-sm" />
+        <DialogContent className="bg-white dark:bg-gray-800">
+          <DialogHeader>
+            <DialogTitle>Invite User to Workspace</DialogTitle>
+          </DialogHeader>
+          <DialogDescription>
+            <div className="space-y-4">
+              {isLoadingUsers ? (
+                <div className="flex justify-center items-center h-20">
+                  <Loader2 className="mr-2 h-8 w-8 animate-spin" />
+                  <span>Loading users...</span>
+                </div>
+              ) : (
+                usersData?.data?.map((user) => (
+                  <div key={user.id} className="flex items-center justify-between">
+                    <span>{user.email}</span>
+                    <Button
+                      onClick={() => handleInvite(user.id)}
+                      disabled={isUserMember(user.id) || isInviting}
+                    >
+                      {isUserMember(user.id)
+                        ? "Already a member"
+                        : isInviting
+                        ? "Inviting..."
+                        : "Invite"}
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
           </DialogDescription>
         </DialogContent>
       </Dialog>

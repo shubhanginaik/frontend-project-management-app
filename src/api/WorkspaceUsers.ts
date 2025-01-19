@@ -16,7 +16,7 @@ export interface WorkspaceUsersResponse {
   data: Workspaceuser[]
   status: string
   code: number
-  errors: null | any
+  errors: null | unknown
 }
 
 export interface WorkspaceDetails {
@@ -32,7 +32,7 @@ export interface WorkspaceDetailsResponse {
   data: WorkspaceDetails
   status: string
   code: number
-  errors: null | any
+  errors: null | unknown
 }
 
 export interface DefaultWorkspaceInfo {
