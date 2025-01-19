@@ -115,7 +115,8 @@ export function WorkspaceDetailsPage() {
     }
 
     fetchRoles()
-  }, [membersData, userId])
+    refetchMembers()
+  }, [membersData, userId, refetchMembers])
 
   const addUserToWorkspaceMutation = useAddUserToWorkspace()
 

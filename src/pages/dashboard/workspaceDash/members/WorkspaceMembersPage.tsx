@@ -22,6 +22,7 @@ import {
   WorkspaceUserWithDetails
 } from "@/api/WorkspaceUsers"
 import { useDeleteUserFromWorkspaceUsers } from "@/hooks/useDeleteUser"
+import { useWorkspace } from "@/context/WokspaceContext"
 
 export function MembersPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
@@ -29,6 +30,7 @@ export function MembersPage() {
   const { isAuthenticated, userId } = useAuth()
   const { mutate: deleteUser, isPending: isDeletingUser } = useDeleteUserFromWorkspaceUsers()
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
+  const { refetchMembers } = useWorkspace()
 
   if (!isAuthenticated) {
     return <div>Not authenticated</div>
@@ -61,6 +63,10 @@ export function MembersPage() {
 
     fetchDetails()
   }, [members])
+
+  useEffect(() => {
+    refetchMembers()
+  }, [refetchMembers])
 
   const handleDelete = async (memberId: string) => {
     const loggedInUser = detailedMembers?.find((member) => member.userId === userId)

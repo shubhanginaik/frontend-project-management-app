@@ -1,17 +1,26 @@
-import React, { createContext, useContext, useState, ReactNode } from "react"
+import React, { createContext, useContext, useState, ReactNode, useCallback } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface WorkspaceContextProps {
   workspaceId: string | null
   setWorkspaceId: (id: string) => void
+  refetchMembers: () => void
 }
 
 const WorkspaceContext = createContext<WorkspaceContextProps | undefined>(undefined)
 
 export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
   const [workspaceId, setWorkspaceId] = useState<string | null>(null)
+  const queryClient = useQueryClient()
+
+  const refetchMembers = useCallback(() => {
+    if (workspaceId) {
+      queryClient.invalidateQueries({ queryKey: ["workspaceMembers", workspaceId] })
+    }
+  }, [queryClient, workspaceId])
 
   return (
-    <WorkspaceContext.Provider value={{ workspaceId, setWorkspaceId }}>
+    <WorkspaceContext.Provider value={{ workspaceId, setWorkspaceId, refetchMembers }}>
       {children}
     </WorkspaceContext.Provider>
   )
