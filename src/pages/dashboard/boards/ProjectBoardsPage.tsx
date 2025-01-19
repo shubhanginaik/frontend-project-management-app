@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { DragDropContext, DropResult } from "@hello-pangea/dnd"
 import { Loader2 } from "lucide-react"
@@ -28,22 +28,26 @@ export function ProjectBoardPage() {
   const addTaskMutation = useAddTask()
   const uploadAttachmentMutation = useUploadAttachment()
 
-  useMemo(() => {
-    if (!tasksResponse) return
-
+  useEffect(() => {
     const columnDefinitions: Column[] = [
       { id: "TODO", title: "To Do", tasks: [] },
       { id: "IN_PROGRESS", title: "In Progress", tasks: [] },
       { id: "DONE", title: "Done", tasks: [] }
     ]
 
-    const updatedColumns = columnDefinitions.map((column) => ({
-      ...column,
-      tasks: tasksResponse.data.filter((task: Task) => task.taskStatus.toUpperCase() === column.id)
-    }))
-
-    setColumns(updatedColumns)
-  }, [tasksResponse])
+    if (tasksResponse) {
+      const updatedColumns = columnDefinitions.map((column) => ({
+        ...column,
+        tasks: tasksResponse.data.filter(
+          (task: Task) =>
+            task.taskStatus.toUpperCase() === column.id && task.projectId === projectId
+        )
+      }))
+      setColumns(updatedColumns)
+    } else {
+      setColumns(columnDefinitions)
+    }
+  }, [tasksResponse, projectId])
 
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result
@@ -60,38 +64,28 @@ export function ProjectBoardPage() {
       updateTaskMutation.mutate(
         {
           taskId: task.id,
-          updatedTask: { ...task, taskStatus: newStatus, projectId: projectId! }
+          updatedTask: { ...task, taskStatus: newStatus }
         },
         {
-          onSuccess: (response) => {
-            if (response !== null) {
-              const updatedTask = response
-              const updatedColumns = columns.map((column) => {
-                if (column.id === sourceColumn.id) {
-                  return {
-                    ...column,
-                    tasks: column.tasks.filter((t) => t.id !== task.id)
-                  }
+          onSuccess: (updatedTask) => {
+            const updatedColumns = columns.map((column) => {
+              if (column.id === sourceColumn.id) {
+                return {
+                  ...column,
+                  tasks: column.tasks.filter((t) => t.id !== task.id)
                 }
-                if (column.id === destColumn.id) {
-                  const newTasks = Array.from(column.tasks)
-                  newTasks.splice(destination.index, 0, updatedTask)
-                  return {
-                    ...column,
-                    tasks: newTasks
-                  }
+              }
+              if (column.id === destColumn.id) {
+                const newTasks = Array.from(column.tasks)
+                newTasks.splice(destination.index, 0, updatedTask)
+                return {
+                  ...column,
+                  tasks: newTasks
                 }
-                return column
-              })
-              setColumns(updatedColumns)
-            } else {
-              console.error("Failed to update task:")
-              toast({
-                title: "Error",
-                description: "Failed to update task. Please try again.",
-                variant: "destructive"
-              })
-            }
+              }
+              return column
+            })
+            setColumns(updatedColumns)
           },
           onError: (error) => {
             console.error("Error updating task:", error)
@@ -132,7 +126,7 @@ export function ProjectBoardPage() {
       projectId: projectId,
       createdUserId: userId ?? "",
       assignedUserId: userId ?? "",
-      priority: "LOW_PRIORITY"
+      priority: "HIGH_PRIORITY"
     }
 
     addTaskMutation.mutate(newTask, {
@@ -169,9 +163,7 @@ export function ProjectBoardPage() {
             updateTaskMutation.mutate({
               taskId: selectedTask.id,
               updatedTask: {
-                ...selectedTask,
-                attachment: [...(selectedTask?.attachment || []), attachmentUrl],
-                projectId
+                attachment: [...(selectedTask?.attachment || []), attachmentUrl]
               }
             })
           },
@@ -249,11 +241,17 @@ export function ProjectBoardPage() {
                   })
                 }
               },
-              onError: (error) => {
+              onError: (error: unknown) => {
                 console.error("Error updating task:", error)
+                let errorMessage = "Failed to update task. Please try again."
+                if (error instanceof Error) {
+                  errorMessage = error.message
+                } else if (typeof error === "string") {
+                  errorMessage = error
+                }
                 toast({
                   title: "Error",
-                  description: error.message || "Failed to update task. Please try again.",
+                  description: errorMessage,
                   variant: "destructive"
                 })
               }

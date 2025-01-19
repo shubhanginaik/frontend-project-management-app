@@ -252,7 +252,7 @@ export function WorkspaceDetailsPage() {
       description: newProject?.description || "",
       createdDate: "",
       startDate: sixMonthsLater,
-      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 8)).toISOString(),
+      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString(),
       createdByUserId: workspace.createdBy,
       workspaceId: workspace.id,
       status: true
@@ -264,7 +264,7 @@ export function WorkspaceDetailsPage() {
         setNewProject({
           name: "",
           description: "",
-          createdDate: new Date(new Date().setFullYear(new Date().getFullYear() + 8)).toISOString(),
+          createdDate: new Date(new Date().setFullYear(new Date().getFullYear())).toISOString(),
           startDate: sixMonthsLater,
           endDate: "",
           createdByUserId: userId || "",
@@ -415,7 +415,7 @@ export function WorkspaceDetailsPage() {
                     <p>Status: {project.status ? "Active" : "Inactive"}</p>
                   </div>
                   <Button
-                    className="mt-2 w-full"
+                    className="mt-4 bg-[#efb6c8] text-white px-4 py-2 rounded hover:bg-[#dba4b3]"
                     variant="outline"
                     onClick={() => handleViewProject(project.id, project.name)}
                   >
