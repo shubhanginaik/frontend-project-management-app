@@ -19,7 +19,7 @@
 
 .dark-theme {
   --background-color: #000957;
-  --text-color: white;
+  --text-color: rgb(38, 124, 156);
   --button-background-color: rgb(208, 155, 56);
   --button-border-radius: 5px;
   --button-text-color: white;

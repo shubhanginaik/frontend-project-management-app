@@ -16,7 +16,7 @@ interface Column {
 }
 
 interface LocationState {
-  membersData: { userId: string }[]
+  membersData: { userId: string; firstName: string; lastName: string }[]
 }
 
 export function ProjectBoardPage() {

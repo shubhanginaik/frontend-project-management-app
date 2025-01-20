@@ -4,7 +4,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter
+  DialogFooter,
+  DialogDescription
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -20,10 +21,13 @@ import { Task } from "@/hooks/taskHook"
 import { useUpdateTask } from "@/hooks/taskHook"
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
+import { useAddComment, useComments } from "@/hooks/useComment"
+import { Comment } from "@/api/comments"
+import { useAuth } from "@/context/AuthContext"
 
 interface TaskDetailsDialogProps {
   task: Task | null
-  membersData: { userId: string }[]
+  membersData: { userId: string; firstName: string; lastName: string }[]
   onClose: () => void
   onUpdate: (taskId: string, updatedTask: Partial<Task>) => void
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
@@ -40,15 +44,20 @@ export function TaskDetailsDialog({
 }: TaskDetailsDialogProps) {
   const { toast } = useToast()
   const updateTaskMutation = useUpdateTask()
+  const addCommentMutation = useAddComment()
+  const { data: comments = [], refetch } = useComments(task?.id || "")
   const [assignedUserId, setAssignedUserId] = useState<string | null>(task?.assignedUserId || null)
   const [taskDetails, setTaskDetails] = useState<Partial<Task>>({})
+  const [newComment, setNewComment] = useState<string>("")
+  const { userId } = useAuth()
 
   useEffect(() => {
     if (task) {
       setAssignedUserId(task.assignedUserId)
       setTaskDetails(task)
+      refetch()
     }
-  }, [task])
+  }, [task, refetch])
 
   const handleInputChange = (field: keyof Task, value: any) => {
     setTaskDetails((prevDetails) => ({
@@ -96,13 +105,43 @@ export function TaskDetailsDialog({
     }
   }
 
+  const handleAddComment = () => {
+    if (task && newComment.trim()) {
+      const comment: Omit<Comment, "id"> = {
+        taskId: task.id,
+        content: newComment,
+        createdBy: userId || "" // Replace with actual user ID
+      }
+      addCommentMutation.mutate(comment, {
+        onSuccess: () => {
+          setNewComment("")
+          refetch() // Fetch all comments again after adding a new comment
+        },
+        onError: (error) => {
+          console.error("Error adding comment:", error)
+          toast({
+            title: "Error",
+            description: error.message || "Failed to add comment. Please try again.",
+            variant: "destructive"
+          })
+        }
+      })
+    }
+  }
+
+  const getUserName = (userId: string) => {
+    const user = membersData.find((member) => member.userId === userId)
+    return user ? `${user.firstName} ${user.lastName}` : "Unknown User"
+  }
+
   if (!task) return null
 
   return (
     <Dialog open={!!task} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-[425px] bg-white">
+      <DialogContent className="sm:max-w-[800px] bg-[#f3e8ff]">
         <DialogHeader>
           <DialogTitle>Task Details</DialogTitle>
+          <DialogDescription>Details about the selected task.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
@@ -147,10 +186,10 @@ export function TaskDetailsDialog({
               value={taskDetails.priority || "MEDIUM_PRIORITY"}
               onValueChange={(value) => handleInputChange("priority", value)}
             >
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3 bg-[#f3e8ff]">
                 <SelectValue placeholder="Select priority" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#f3e8ff]">
                 <SelectItem value="LOW_PRIORITY">Low</SelectItem>
                 <SelectItem value="MEDIUM_PRIORITY">Medium</SelectItem>
                 <SelectItem value="HIGH_PRIORITY">High</SelectItem>
@@ -188,14 +227,14 @@ export function TaskDetailsDialog({
               Assign User
             </Label>
             <Select value={assignedUserId || ""} onValueChange={(value) => handleAssignUser(value)}>
-              <SelectTrigger className="col-span-3">
+              <SelectTrigger className="col-span-3 bg-[#f3e8ff]">
                 <SelectValue placeholder="Select user" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[#f3e8ff]">
                 {membersData && membersData.length > 0 ? (
                   membersData.map((member) => (
                     <SelectItem key={member.userId} value={member.userId}>
-                      {member.userId}
+                      {member.firstName} {member.lastName}
                     </SelectItem>
                   ))
                 ) : (
@@ -206,12 +245,45 @@ export function TaskDetailsDialog({
               </SelectContent>
             </Select>
           </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={handleSaveChanges}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+          <div className="mt-6">
+            <Label htmlFor="comments" className="text-lg font-semibold">
+              Comments
+            </Label>
+            <div className="mt-2">
+              <Textarea
+                id="newComment"
+                value={newComment}
+                placeholder="Add a comment"
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <Button onClick={handleAddComment} className="mt-2">
+                Add Comment
+              </Button>
+            </div>
+            <div className="mt-4 space-y-4">
+              {comments.map((comment) => (
+                <div key={comment.id} className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                      {getUserName(comment.createdBy).charAt(0).toUpperCase()}
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-gray-900">
+                      {getUserName(comment.createdBy)}
+                    </div>
+                    <div className="mt-1 text-sm text-gray-700">{comment.content}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={handleSaveChanges}>
-            Save Changes
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
