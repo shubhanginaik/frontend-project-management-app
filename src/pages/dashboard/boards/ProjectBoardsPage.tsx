@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useLocation } from "react-router-dom"
 import { DragDropContext, DropResult } from "@hello-pangea/dnd"
 import { Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -15,14 +15,20 @@ interface Column {
   tasks: Task[]
 }
 
+interface LocationState {
+  membersData: { userId: string }[]
+}
+
 export function ProjectBoardPage() {
   const { projectId } = useParams<{ projectId: string }>()
+  const location = useLocation()
+  const { membersData } = (location.state as LocationState) || { membersData: [] }
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [columns, setColumns] = useState<Column[]>([])
   const { userId, isAuthenticated } = useAuth()
   const { toast } = useToast()
 
-  const { data: tasksResponse, isLoading, error } = useTasks(projectId!)
+  const { data: tasksResponse, isLoading, error } = useTasks(projectId ?? "")
 
   const updateTaskMutation = useUpdateTask()
   const addTaskMutation = useAddTask()
@@ -218,6 +224,7 @@ export function ProjectBoardPage() {
 
       <TaskDetailsDialog
         task={selectedTask}
+        membersData={membersData}
         onClose={() => setSelectedTask(null)}
         onUpdate={(taskId, updatedTask) =>
           updateTaskMutation.mutate(

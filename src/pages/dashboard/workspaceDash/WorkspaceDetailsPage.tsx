@@ -118,6 +118,10 @@ export function WorkspaceDetailsPage() {
     refetchMembers()
   }, [membersData, userId, refetchMembers])
 
+  const handleNavigateToProjectBoard = () => {
+    navigate(`/project/${workspaceIdDd}/board`, { state: { membersData } })
+  }
+
   const addUserToWorkspaceMutation = useAddUserToWorkspace()
 
   const handleInvite = (userId: string) => {
@@ -340,7 +344,7 @@ export function WorkspaceDetailsPage() {
   const handleViewProject = (projectId: string, projectName: string) => {
     if (projectId && projectName) {
       pinProject({ id: projectId, name: projectName })
-      navigate(`/projects/${projectId}`)
+      navigate(`/projects/${projectId}`, { state: { membersData } })
     }
   }
 

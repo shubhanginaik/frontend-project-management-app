@@ -96,7 +96,6 @@ export const useUpdateTask = () => {
     },
     onError: (error) => {
       console.error("Error updating task:", error)
-      // You can add additional error handling here, such as showing a toast notification
     }
   })
 }
