@@ -67,6 +67,9 @@
   box-shadow: 0 4px 12px rgba(239, 182, 200, 0.4);
 }
 
+body {
+  background-color: #c7bce0;
+}
 /* Button styles */
 .sidebar button {
   display: flex;

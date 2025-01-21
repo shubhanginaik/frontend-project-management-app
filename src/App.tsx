@@ -1,5 +1,5 @@
 import React from "react"
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom"
+import { Route, Routes, Navigate } from "react-router-dom"
 import { AuthProvider, useAuth } from "@/context/AuthContext"
 import { Home } from "@/pages/home/home"
 import { WorkspaceProvider } from "@/context/WokspaceContext"
@@ -75,7 +75,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/projects/:projectId"
+        path="/:workspaceId/:projectId/projects"
         element={
           <ProtectedRoute>
             <ProjectBoardPage />

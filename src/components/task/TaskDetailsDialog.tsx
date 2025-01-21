@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button"
 import { useAddComment, useComments } from "@/hooks/useComment"
 import { Comment } from "@/api/comments"
 import { useAuth } from "@/context/AuthContext"
+import { useActivityLogs } from "@/hooks/activityLogs"
 
 interface TaskDetailsDialogProps {
   task: Task | null
@@ -31,7 +32,7 @@ interface TaskDetailsDialogProps {
   onClose: () => void
   onUpdate: (taskId: string, updatedTask: Partial<Task>) => void
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
-  showFileUpload?: boolean // Add this flag to control file upload visibility
+  showFileUpload?: boolean
 }
 
 export function TaskDetailsDialog({
@@ -40,12 +41,17 @@ export function TaskDetailsDialog({
   onClose,
   onUpdate,
   onFileUpload,
-  showFileUpload = false // Default to false if not provided
+  showFileUpload = false
 }: TaskDetailsDialogProps) {
   const { toast } = useToast()
   const updateTaskMutation = useUpdateTask()
   const addCommentMutation = useAddComment()
   const { data: comments = [], refetch } = useComments(task?.id || "")
+  const {
+    data: activitiesData,
+    error: activitiesError,
+    isLoading: isLoadingActivities
+  } = useActivityLogs(task?.id || "")
   const [assignedUserId, setAssignedUserId] = useState<string | null>(task?.assignedUserId || null)
   const [taskDetails, setTaskDetails] = useState<Partial<Task>>({})
   const [newComment, setNewComment] = useState<string>("")
@@ -59,7 +65,7 @@ export function TaskDetailsDialog({
     }
   }, [task, refetch])
 
-  const handleInputChange = (field: keyof Task, value: any) => {
+  const handleInputChange = (field: keyof Task, value: unknown) => {
     setTaskDetails((prevDetails) => ({
       ...prevDetails,
       [field]: value
@@ -138,7 +144,7 @@ export function TaskDetailsDialog({
 
   return (
     <Dialog open={!!task} onOpenChange={() => onClose()}>
-      <DialogContent className="sm:max-w-[800px] bg-[#f3e8ff]">
+      <DialogContent className="sm:max-w-[800px] bg-[#f3e8ff] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Task Details</DialogTitle>
           <DialogDescription>Details about the selected task.</DialogDescription>
@@ -186,7 +192,7 @@ export function TaskDetailsDialog({
               value={taskDetails.priority || "MEDIUM_PRIORITY"}
               onValueChange={(value) => handleInputChange("priority", value)}
             >
-              <SelectTrigger className="col-span-3 bg-[#f3e8ff]">
+              <SelectTrigger className="col-span-3 bg-[#c7bce0]">
                 <SelectValue placeholder="Select priority" />
               </SelectTrigger>
               <SelectContent className="bg-[#f3e8ff]">
@@ -227,7 +233,7 @@ export function TaskDetailsDialog({
               Assign User
             </Label>
             <Select value={assignedUserId || ""} onValueChange={(value) => handleAssignUser(value)}>
-              <SelectTrigger className="col-span-3 bg-[#f3e8ff]">
+              <SelectTrigger className="col-span-3 bg-[#c7bce0]">
                 <SelectValue placeholder="Select user" />
               </SelectTrigger>
               <SelectContent className="bg-[#f3e8ff]">
@@ -261,26 +267,48 @@ export function TaskDetailsDialog({
                 placeholder="Add a comment"
                 onChange={(e) => setNewComment(e.target.value)}
               />
-              <Button onClick={handleAddComment} className="mt-2">
+              <Button variant="ghost" onClick={handleAddComment} className="mt-2">
                 Add Comment
               </Button>
             </div>
-            <div className="mt-4 space-y-4">
+            <div className="mt-4 space-y-2">
               {comments.map((comment) => (
-                <div key={comment.id} className="flex items-start space-x-4">
+                <div key={comment.id} className="flex items-center space-x-2">
                   <div className="flex-shrink-0">
                     <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                       {getUserName(comment.createdBy).charAt(0).toUpperCase()}
                     </div>
                   </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900">
-                      {getUserName(comment.createdBy)}
-                    </div>
-                    <div className="mt-1 text-sm text-gray-700">{comment.content}</div>
-                  </div>
+                  <p>{getUserName(comment.createdBy)}</p>
+                  <p>{comment.content}</p>
                 </div>
               ))}
+            </div>
+            <div className="mt-8">
+              <h3>Activities</h3>
+              {isLoadingActivities ? (
+                <p>Loading activities...</p>
+              ) : activitiesError ? (
+                <p>Error loading activities: {activitiesError.message}</p>
+              ) : (
+                <div className="flex flex-col space-y-2">
+                  {activitiesData?.data.map((activity) => (
+                    <div key={activity.id} className="flex items-center space-x-2">
+                      <div className="flex-shrink-0">
+                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                          {getUserName(activity.userId).charAt(0).toUpperCase()}
+                        </div>
+                      </div>
+                      <p>{getUserName(activity.userId)}</p>
+                      <p>{activity.action}</p>
+                      <p>
+                        <span>{activity.entityType}</span>
+                      </p>
+                      <p>{new Date(activity.createdDate).toLocaleString()}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

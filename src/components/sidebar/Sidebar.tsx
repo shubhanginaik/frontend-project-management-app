@@ -3,7 +3,6 @@ import { Home } from "lucide-react"
 import { FaTrello } from "react-icons/fa"
 import "./Sidebar.css"
 import { useWorkspace } from "@/context/WokspaceContext"
-import { Button } from "../ui/button"
 
 export function Sidebar() {
   const { workspaceId, pinnedProjects } = useWorkspace()
@@ -59,7 +58,7 @@ export function Sidebar() {
             {pinnedProjects.map((project) => (
               <NavLink
                 key={project.id}
-                to={`/projects/${project.id}`}
+                to={`/${workspaceId}/${project.id}/projects`}
                 className={({ isActive }) => (isActive ? "active sidebar-link" : "sidebar-link")}
               >
                 {project.name}

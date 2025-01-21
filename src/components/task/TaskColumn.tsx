@@ -1,7 +1,6 @@
 import React, { useState } from "react"
 import { Task } from "@/hooks/taskHook"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
-import { DropdownMenu } from "@/components/task/TaskDropDown"
 
 interface TaskColumnProps {
   id: string
@@ -19,22 +18,6 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
   onTaskClick
 }) => {
   const [newTaskName, setNewTaskName] = useState("")
-
-  const handleEditTask = (task: Task) => {
-    onTaskClick(task)
-  }
-
-  const handleDeleteTask = (taskId: string) => {
-    console.log(`Delete task with ID: ${taskId}`)
-  }
-
-  const handleAssignTask = (taskId: string) => {
-    console.log(`Assign task with ID: ${taskId}`)
-  }
-
-  const handleCommentTask = (taskId: string) => {
-    console.log(`Comment on task with ID: ${taskId}`)
-  }
 
   const handleAddTask = () => {
     if (newTaskName.trim() !== "") {
@@ -61,12 +44,6 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
                     <div onClick={() => onTaskClick(task)} className="cursor-pointer">
                       {task.name}
                     </div>
-                    <DropdownMenu
-                      onEdit={() => handleEditTask(task)}
-                      onDelete={() => handleDeleteTask(task.id)}
-                      onAssign={() => handleAssignTask(task.id)}
-                      onComment={() => handleCommentTask(task.id)}
-                    />
                   </div>
                 )}
               </Draggable>
