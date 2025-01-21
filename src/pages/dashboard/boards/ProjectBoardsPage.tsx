@@ -8,6 +8,7 @@ import { TaskColumn } from "@/components/task/TaskColumn"
 import { TaskDetailsDialog } from "@/components/task/TaskDetailsDialog"
 import { useAuth } from "@/context/AuthContext"
 import { useToast } from "@/components/ui/use-toast"
+import { useWorkspaceMembersByWorkspace } from "@/api/WorkspaceUsers"
 
 interface Column {
   id: string
@@ -15,14 +16,11 @@ interface Column {
   tasks: Task[]
 }
 
-interface LocationState {
-  membersData: { userId: string; firstName: string; lastName: string }[]
-}
-
 export function ProjectBoardPage() {
-  const { projectId } = useParams<{ projectId: string }>()
-  const location = useLocation()
-  const { membersData } = (location.state as LocationState) || { membersData: [] }
+  const { workspaceId, projectId } = useParams<{ workspaceId: string; projectId: string }>()
+  const { data: membersData, refetch: refetchMembers } = useWorkspaceMembersByWorkspace(
+    workspaceId || ""
+  )
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [columns, setColumns] = useState<Column[]>([])
   const { userId, isAuthenticated } = useAuth()
@@ -33,6 +31,14 @@ export function ProjectBoardPage() {
   const updateTaskMutation = useUpdateTask()
   const addTaskMutation = useAddTask()
   const uploadAttachmentMutation = useUploadAttachment()
+
+  useEffect(() => {
+    refetchMembers()
+  }, [workspaceId, refetchMembers])
+
+  const handleCloseDialog = () => {
+    setSelectedTask(null)
+  }
 
   useEffect(() => {
     const columnDefinitions: Column[] = [
@@ -224,8 +230,9 @@ export function ProjectBoardPage() {
 
       <TaskDetailsDialog
         task={selectedTask}
-        membersData={membersData}
-        onClose={() => setSelectedTask(null)}
+        membersData={membersData || []}
+        workspaceId={workspaceId || ""}
+        onClose={handleCloseDialog}
         onUpdate={(taskId, updatedTask) =>
           updateTaskMutation.mutate(
             { taskId, updatedTask: { ...updatedTask, projectId: projectId! } as Task },

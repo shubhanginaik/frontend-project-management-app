@@ -25,10 +25,12 @@ import { useAddComment, useComments } from "@/hooks/useComment"
 import { Comment } from "@/api/comments"
 import { useAuth } from "@/context/AuthContext"
 import { useActivityLogs } from "@/hooks/activityLogs"
+import { useWorkspaceMembersByWorkspace } from "@/api/WorkspaceUsers"
 
 interface TaskDetailsDialogProps {
   task: Task | null
   membersData: { userId: string; firstName: string; lastName: string }[]
+  workspaceId: string
   onClose: () => void
   onUpdate: (taskId: string, updatedTask: Partial<Task>) => void
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
@@ -37,7 +39,7 @@ interface TaskDetailsDialogProps {
 
 export function TaskDetailsDialog({
   task,
-  membersData,
+  workspaceId,
   onClose,
   onUpdate,
   onFileUpload,
@@ -56,6 +58,7 @@ export function TaskDetailsDialog({
   const [taskDetails, setTaskDetails] = useState<Partial<Task>>({})
   const [newComment, setNewComment] = useState<string>("")
   const { userId } = useAuth()
+  const { data: membersData, refetch: refetchMembers } = useWorkspaceMembersByWorkspace(workspaceId)
 
   useEffect(() => {
     if (task) {
@@ -64,6 +67,10 @@ export function TaskDetailsDialog({
       refetch()
     }
   }, [task, refetch])
+
+  useEffect(() => {
+    refetchMembers()
+  }, [workspaceId, refetchMembers])
 
   const handleInputChange = (field: keyof Task, value: unknown) => {
     setTaskDetails((prevDetails) => ({
@@ -136,7 +143,7 @@ export function TaskDetailsDialog({
   }
 
   const getUserName = (userId: string) => {
-    const user = membersData.find((member) => member.userId === userId)
+    const user = membersData?.find((member) => member.userId === userId)
     return user ? `${user.firstName} ${user.lastName}` : "Unknown User"
   }
 
