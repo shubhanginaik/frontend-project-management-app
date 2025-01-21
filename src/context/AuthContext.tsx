@@ -7,6 +7,7 @@ import {
   fetchWorkspaceDetails,
   WorkspaceDetailsResponse
 } from "@/api/WorkspaceUsers"
+import { updateUserProfile as updateUserProfileApi } from "@/api/memberProfile"
 
 interface DecodedToken {
   sub: string // This is the email
@@ -18,6 +19,8 @@ interface UserData {
   id: string
   email: string
   firstName: string
+  lastName: string
+  phone: string
 }
 
 interface WorkspaceUser {
@@ -41,13 +44,22 @@ interface AuthContextType {
   userId: string | null
   userEmail: string | null
   firstName: string | null
+  lastName: string | null
+  phone: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   workspaces: WorkspaceDetailsResponse[]
   updateWorkspaceDetails: (
     workspaceId: string,
-    updatedDetails: { name: string; description: string; type: string }
+    workspaceDetails: { name: string; description: string; type: string }
   ) => Promise<void>
+  updateUserProfile: (profileDetails: {
+    userId: string
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+  }) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -58,6 +70,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userId, setUserId] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [firstName, setFirstName] = useState<string | null>(null)
+  const [lastName, setLastName] = useState<string | null>(null)
+  const [phone, setPhone] = useState<string | null>(null)
   const [workspaces, setWorkspaces] = useState<WorkspaceDetailsResponse[]>([])
 
   const queryClient = useQueryClient()
@@ -99,15 +113,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   const updateWorkspaceDetailsMutation = useMutation({
-    mutationFn: async (updatedDetails: {
+    mutationFn: async (workspaceDetails: {
       workspaceId: string
       name: string
       description: string
     }) => {
-      return api.put(`/workspaces/${updatedDetails.workspaceId}`, updatedDetails)
+      return api.put(`/workspaces/${workspaceDetails.workspaceId}`, workspaceDetails)
     },
-    onSuccess: (_, updatedDetails) => {
-      queryClient.invalidateQueries({ queryKey: ["workspace-details", updatedDetails.workspaceId] })
+    onSuccess: (_, workspaceDetails) => {
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-details", workspaceDetails.workspaceId]
+      })
     },
     onError: (error) => {
       console.error("Error updating workspace details:", error)
@@ -116,18 +132,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateWorkspaceDetails = async (
     workspaceId: string,
-    updatedDetails: { name: string; description: string; type: string }
+    workspaceDetails: { name: string; description: string; type: string }
   ) => {
     try {
       setWorkspaces((prev) =>
         prev.map((ws) =>
-          ws.data.id === workspaceId ? { ...ws, data: { ...ws.data, ...updatedDetails } } : ws
+          ws.data.id === workspaceId ? { ...ws, data: { ...ws.data, ...workspaceDetails } } : ws
         )
       )
-      await updateWorkspaceDetailsMutation.mutateAsync({ workspaceId, ...updatedDetails })
+      await updateWorkspaceDetailsMutation.mutateAsync({ workspaceId, ...workspaceDetails })
       await fetchWorkspaceData(userId!)
     } catch (error) {
       console.error("Error updating workspace details:", error)
+    }
+  }
+
+  const updateUserProfile = async (profileDetails: {
+    userId: string
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+  }) => {
+    try {
+      const response = await updateUserProfileApi(profileDetails)
+      const updatedUser = response.data.data
+      setFirstName(updatedUser.firstName)
+      setLastName(updatedUser.lastName)
+      setUserEmail(updatedUser.email)
+      setPhone(updatedUser.phone)
+    } catch (error) {
+      console.error("Error updating profile:", error)
+      throw error
     }
   }
 
@@ -150,6 +186,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserId(userData.id)
       setUserEmail(userData.email)
       setFirstName(userData.firstName)
+      setLastName(userData.lastName)
+      setPhone(userData.phone)
 
       await fetchWorkspaceData(userData.id)
     },
@@ -173,6 +211,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserId(null)
       setUserEmail(null)
       setFirstName(null)
+      setLastName(null)
+      setPhone(null)
       setWorkspaces([])
       sessionStorage.removeItem("token")
       sessionStorage.removeItem("workspaces")
@@ -199,10 +239,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userId,
         userEmail,
         firstName,
+        lastName,
+        phone,
         login,
         logout,
         workspaces,
-        updateWorkspaceDetails
+        updateWorkspaceDetails,
+        updateUserProfile
       }}
     >
       {children}

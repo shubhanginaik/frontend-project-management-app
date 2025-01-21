@@ -6,10 +6,13 @@ import { useTheme } from "@/context/ThemeContext"
 import { WorkspacePage } from "@/pages/dashboard/workspaceDash/WorkspacePageDd"
 import { useAuth } from "@/context/AuthContext"
 import "./header.css"
+import { useState } from "react"
+import { ProfileUpdateForm } from "./ProfileUpdateForm"
 
 export function Header() {
   const { theme, toggleTheme } = useTheme()
   const { isAuthenticated, logout, firstName } = useAuth()
+  const [isProfileFormOpen, setIsProfileFormOpen] = useState(false)
 
   return (
     <header className="w-full flex items-center justify-between p-4 bg-background border-b">
@@ -37,12 +40,12 @@ export function Header() {
           {isAuthenticated ? (
             <>
               <div className="round-link">
-                <Link
-                  to="/profile"
+                <Button
+                  onClick={() => setIsProfileFormOpen(true)}
                   className="text-sm font-medium text-foreground hover:text-accent-foreground dark:bg-gray-800 px-3 py-2 rounded-md"
                 >
                   {firstName}
-                </Link>
+                </Button>
               </div>
               <div className="btnlogout">
                 <Button
@@ -86,6 +89,12 @@ export function Header() {
           ...
         </Link>
       </div>
+      {isProfileFormOpen && (
+        <div className="absolute top-16 right-0 bg-white p-4 rounded shadow-lg z-20">
+          <ProfileUpdateForm />
+          <Button onClick={() => setIsProfileFormOpen(false)}>Close</Button>
+        </div>
+      )}
     </header>
   )
 }
