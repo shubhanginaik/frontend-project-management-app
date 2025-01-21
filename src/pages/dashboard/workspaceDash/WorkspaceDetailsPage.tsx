@@ -42,11 +42,12 @@ import { useWorkspace } from "@/context/WokspaceContext"
 import { useQueryClient } from "@tanstack/react-query"
 import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
 import { useGetAllUsers } from "@/hooks/useFetchUser"
+import { useWorkspaceDetails } from "@/hooks/useWorkspaceDetails"
 
 export function WorkspaceDetailsPage() {
   const { workspaceId: urlWorkspaceId } = useParams<{ workspaceId: string }>()
   const { setWorkspaceId, pinProject } = useWorkspace()
-  const { workspaces, userId } = useAuth()
+  const { workspaces, userId, updateWorkspaceDetails } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const { workspace: initialWorkspace } = location.state || {}
@@ -69,12 +70,15 @@ export function WorkspaceDetailsPage() {
   const { data: projectsResponse, isLoading, error, refetch } = useProjects()
   const updateWorkspaceMutation = useUpdateWorkspace()
   const addProjectMutation = useAddProject()
+  const { data: workspaceDetails, refetch: refetchWorkspaceDetails } = useWorkspaceDetails(
+    currentWorkspaceId || ""
+  )
 
   const [roles, setRoles] = useState<Role[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
   const [isInviting, setIsInviting] = useState(false)
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false)
-  const queryClient = useQueryClient()
+
   const { data: usersData, isLoading: isLoadingUsers } = useGetAllUsers()
 
   const workspaceIdDd = currentWorkspaceId || sessionStorage.getItem("currentWorkspaceId")
@@ -84,9 +88,7 @@ export function WorkspaceDetailsPage() {
       setWorkspaceId(urlWorkspaceId)
     }
   }, [urlWorkspaceId, setWorkspaceId])
-  interface Props {
-    workspace: Workspace
-  }
+
   const {
     data: membersData,
     isLoading: isLoadingMembers,
@@ -197,7 +199,7 @@ export function WorkspaceDetailsPage() {
 
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!workspace) return
+    if (!workspaceDetails) return
 
     if (Object.keys(editForm).length === 0) {
       toast({
@@ -208,26 +210,27 @@ export function WorkspaceDetailsPage() {
       return
     }
 
-    updateWorkspaceMutation.mutate(
-      { workspaceId: workspace.id, updateData: editForm },
-      {
-        onSuccess: () => {
-          setIsEditDialogOpen(false)
-          toast({
-            title: "Success",
-            description: "Workspace updated successfully."
-          })
-        },
-        onError: (error) => {
-          toast({
-            title: "Error",
-            description: "Failed to update workspace. Please try again.",
-            variant: "destructive"
-          })
-          console.error("Failed to update workspace:", error)
-        }
-      }
-    )
+    updateWorkspaceDetails(workspaceDetails.data.id, {
+      name: editForm.name || workspaceDetails.data.name,
+      description: editForm.description || workspaceDetails.data.description,
+      type: editForm.type || workspaceDetails.data.type
+    })
+      .then(() => {
+        setIsEditDialogOpen(false)
+        toast({
+          title: "Success",
+          description: "Workspace updated successfully."
+        })
+        refetchWorkspaceDetails()
+      })
+      .catch((error: unknown) => {
+        toast({
+          title: "Error",
+          description: "Failed to update workspace. Please try again.",
+          variant: "destructive"
+        })
+        console.error("Failed to update workspace:", error)
+      })
   }
 
   const handleAddProject = () => {
