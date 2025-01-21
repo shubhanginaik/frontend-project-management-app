@@ -31,13 +31,13 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { useQueryClient } from "@tanstack/react-query"
+
 
 export function CreateWorkspacePage() {
   const navigate = useNavigate()
   const { userId } = useAuth()
   const { toast } = useToast()
-  const queryClient = useQueryClient()
+ 
   const {
     data: companiesData,
     isLoading: isLoadingCompanies,

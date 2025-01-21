@@ -39,7 +39,6 @@ import {
 import "./workspaceDetailsPage.css"
 import { fetchAllRoles, fetchRoleDetails, Role } from "@/hooks/useRole"
 import { useWorkspace } from "@/context/WokspaceContext"
-import { useQueryClient } from "@tanstack/react-query"
 import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
 import { useGetAllUsers } from "@/hooks/useFetchUser"
 import { useWorkspaceDetails } from "@/hooks/useWorkspaceDetails"
@@ -103,8 +102,6 @@ export function WorkspaceDetailsPage() {
         setRoles(rolesResponse.data)
         const adminRole = rolesResponse.data.find((role) => role.name === "ADMIN")
         if (adminRole && membersData) {
-          console.log("membersData:", membersData)
-          console.log("userId:", userId)
           const userMemberData = membersData.find((member) => member.userId === userId)
           console.log("userMemberData:", userMemberData)
           console.log("adminRole.id:", adminRole.id)
@@ -210,6 +207,15 @@ export function WorkspaceDetailsPage() {
       return
     }
 
+    if (!isAdmin) {
+      toast({
+        title: "Error",
+        description: "You do not have permission to update the workspace.",
+        variant: "destructive"
+      })
+      return
+    }
+
     updateWorkspaceDetails(workspaceDetails.data.id, {
       name: editForm.name || workspaceDetails.data.name,
       description: editForm.description || workspaceDetails.data.description,
@@ -234,10 +240,10 @@ export function WorkspaceDetailsPage() {
   }
 
   const handleAddProject = () => {
-    if (workspace.createdBy !== userId) {
+    if (!isAdmin) {
       toast({
         title: "Error",
-        description: "Only the owner of the workspace can add a project.",
+        description: "You do not have permission to add a project.",
         variant: "destructive"
       })
       return
