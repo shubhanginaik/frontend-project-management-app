@@ -39,9 +39,8 @@ export function SignupForm() {
 
     try {
       const signupData = { email, password, firstName, lastName }
-      console.log("Sending signup data:", signupData)
+
       const response = await api.post("/auth/signup", signupData)
-      console.log("API response:", response)
 
       if (response.status === 201) {
         setError(null)
@@ -52,7 +51,7 @@ export function SignupForm() {
       } else {
         setError("Unexpected response structure")
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("API call error", err)
       if (err.response) {
         console.error("Response data:", err.response.data)
@@ -68,77 +67,83 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
-        <CardDescription>Create your account</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="firstName">First Name</Label>
-            <Input
-              id="firstName"
-              name="firstName"
-              type="text"
-              value={state.firstName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lastName">Last Name</Label>
-            <Input
-              id="lastName"
-              name="lastName"
-              type="text"
-              value={state.lastName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={state.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={state.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={state.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          {error && <p className="text-destructive">{error}</p>}
-          {success && <p className="text-success">{success}</p>}
-          <div className="flex justify-center">
-            <Button type="submit" className="px-8" variant={theme === "dark" ? "orange" : "blue"}>
-              Sign Up
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+    <div className="flex items-center justify-center h-screen bg-gray-100">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
+          <CardDescription>Create your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div className="space-y-2">
+              <Label htmlFor="firstName">First Name</Label>
+              <Input
+                id="firstName"
+                name="firstName"
+                type="text"
+                value={state.firstName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input
+                id="lastName"
+                name="lastName"
+                type="text"
+                value={state.lastName}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={state.email}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                value={state.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                value={state.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            {error && <p className="text-destructive">{error}</p>}
+            {success && <p className="text-success">{success}</p>}
+            <div className="flex justify-center">
+              <Button
+                type="submit"
+                className="px-8"
+                variant={theme === "dark" ? "rgb(38,124,156)" : "#a888b5"}
+              >
+                Sign Up
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

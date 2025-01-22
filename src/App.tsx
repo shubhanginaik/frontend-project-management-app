@@ -4,13 +4,11 @@ import { AuthProvider, useAuth } from "@/context/AuthContext"
 import { Home } from "@/pages/home/home"
 import { WorkspaceProvider } from "@/context/WokspaceContext"
 import { LoginPage } from "@/pages/login"
-import { KanbanBoard } from "@/components/board/kanban-board"
 import { DashboardPage } from "@/pages/Dashboard"
 import { RoleManagement } from "@/pages/dashboard/role-management"
-import { BoardsPage } from "@/pages/dashboard/boards/BoardsPage"
+// import { BoardsPage } from "@/pages/dashboard/boards/BoardsPage"
 import { SignupPage } from "@/pages/signup"
 import { CreateWorkspacePage } from "@/pages/dashboard/workspaceDash/CreateWorkspacePage"
-import { DefaultWorkspacePage } from "@/pages/dashboard/workspaceDash/DefaultWorkspacePage"
 import { WorkspaceDetailsPage } from "@/pages/dashboard/workspaceDash/WorkspaceDetailsPage"
 import { Header } from "@/components/header/header"
 import { Sidebar } from "@/components/sidebar/Sidebar"
@@ -19,7 +17,7 @@ import { Profile } from "./components/Profile"
 import { Settings } from "./components/Settings"
 import { ProjectBoardPage } from "./pages/dashboard/boards/ProjectBoardsPage"
 import { MembersPage } from "./pages/dashboard/workspaceDash/members/WorkspaceMembersPage"
-import { ToastProvider, ToastViewport } from "./components/ui/toast"
+import { Toaster } from "./components/ui/toaster"
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth()
@@ -32,7 +30,6 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
-      <Route path="/default-workspace" element={<DefaultWorkspacePage />} />
 
       <Route
         path="/dashboard"
@@ -47,14 +44,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CreateWorkspacePage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/board/:id"
-        element={
-          <ProtectedRoute>
-            <KanbanBoard />
           </ProtectedRoute>
         }
       />
@@ -91,14 +80,6 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/boards"
-        element={
-          <ProtectedRoute>
-            <BoardsPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
         path="/profile"
         element={
           <ProtectedRoute>
@@ -122,22 +103,20 @@ export function App() {
   return (
     <AuthProvider>
       <WorkspaceProvider>
-        <ToastProvider>
-          <div className="app">
-            <div className="header">
-              <Header />
-            </div>
-            <div className="layout">
-              <div className="sidebar">
-                <Sidebar />
-              </div>
-              <div className="main-content">
-                <AppRoutes />
-              </div>
-            </div>
-            <ToastViewport />
+        <div className="app">
+          <div className="header">
+            <Header />
           </div>
-        </ToastProvider>
+          <div className="layout">
+            <div className="sidebar">
+              <Sidebar />
+            </div>
+            <div className="main-content">
+              <AppRoutes />
+              <Toaster />
+            </div>
+          </div>
+        </div>
       </WorkspaceProvider>
     </AuthProvider>
   )

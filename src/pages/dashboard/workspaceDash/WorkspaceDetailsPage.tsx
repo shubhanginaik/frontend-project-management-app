@@ -54,7 +54,11 @@ export function WorkspaceDetailsPage() {
     urlWorkspaceId || undefined
   )
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [editForm, setEditForm] = useState<WorkspaceUpdateScema>({})
+  const [editForm, setEditForm] = useState<WorkspaceUpdateScema>({
+    name: "",
+    description: "",
+    type: undefined
+  })
   const [isAddProjectDialogOpen, setIsAddProjectDialogOpen] = useState(false)
   const [newProject, setNewProject] = useState<NewProject>({
     name: "",
@@ -348,7 +352,7 @@ export function WorkspaceDetailsPage() {
 
   const handleViewProject = (projectId: string, projectName: string) => {
     if (projectId && projectName) {
-      pinProject({ id: projectId, name: projectName })
+      pinProject({ workspaceIdDd, id: projectId, name: projectName })
       navigate(`/${workspaceIdDd}/${projectId}/projects`, { state: { membersData } })
     }
   }
@@ -554,10 +558,10 @@ export function WorkspaceDetailsPage() {
                   }
                   defaultValue={workspace.type}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="col-span-3 bg-[#c7bce0]">
                     <SelectValue placeholder="Select workspace type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-[#f3e8ff]">
                     <SelectItem value="PRIVATE">Private</SelectItem>
                     <SelectItem value="PUBLIC">Public</SelectItem>
                     <SelectItem value="SHARED">Shared</SelectItem>

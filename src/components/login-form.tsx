@@ -1,5 +1,4 @@
 import { ChangeEvent, FormEvent, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -14,7 +13,6 @@ export function LoginForm() {
 
   const [error, setError] = useState<string | null>(null)
   const { login } = useAuth()
-  const navigate = useNavigate()
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value, name } = e.target
@@ -30,7 +28,7 @@ export function LoginForm() {
     try {
       await login(state.email, state.password)
       // No navigation here, as workspaces are fetched in the background
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Login error:", err)
       setError(err.response?.data?.message || "Login failed!")
     }
@@ -71,7 +69,7 @@ export function LoginForm() {
             </div>
             {error && <p className="text-red-500">{error}</p>}
             <div className="flex justify-center">
-              <Button type="submit" className="px-8" variant="blue">
+              <Button type="submit" className="px-8" variant="ghost">
                 Login
               </Button>
             </div>

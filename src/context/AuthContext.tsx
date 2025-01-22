@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react"
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react"
 import { useQueryClient, useMutation } from "@tanstack/react-query"
 import jwtDecode from "jwt-decode"
 import api from "@/api"
@@ -48,6 +48,7 @@ interface AuthContextType {
   phone: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
+  fetchWorkspaceData: (userId: string) => Promise<void>
   workspaces: WorkspaceDetailsResponse[]
   updateWorkspaceDetails: (
     workspaceId: string,
@@ -101,6 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         )
 
         setWorkspaces(workspaceDetailsResponse)
+        queryClient.invalidateQueries({ queryKey: ["workspaces"] })
         sessionStorage.setItem("workspaces", JSON.stringify(workspaceDetailsResponse))
       } else {
         setWorkspaces([])
@@ -230,6 +232,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logoutMutation.mutate()
   }
 
+  useEffect(() => {
+    if (userId) {
+      fetchWorkspaceData(userId)
+    }
+  }, [userId, fetchWorkspaceData])
+
   return (
     <AuthContext.Provider
       value={{
@@ -243,6 +251,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phone,
         login,
         logout,
+        fetchWorkspaceData,
         workspaces,
         updateWorkspaceDetails,
         updateUserProfile

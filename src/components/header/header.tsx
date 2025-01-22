@@ -60,13 +60,13 @@ export function Header() {
             <>
               <Link
                 to="/login"
-                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
+                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-[#2a679d] dark:bg-[#2a679d] px-3 py-2 rounded-md"
               >
                 Login
               </Link>
               <Link
                 to="/signup"
-                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-gray-700 dark:bg-gray-800 px-3 py-2 rounded-md"
+                className="text-sm font-medium text-foreground hover:text-accent-foreground bg-[#2a679d] dark:bg-[#2a679d] px-3 py-2 rounded-md"
               >
                 SignUp
               </Link>

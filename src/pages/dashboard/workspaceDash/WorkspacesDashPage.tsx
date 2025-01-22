@@ -1,7 +1,6 @@
 import { useAuth } from "@/context/AuthContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "react-router-dom"
-import { useEffect } from "react"
 
 export function WorkspacePage() {
   const { workspaces } = useAuth()
