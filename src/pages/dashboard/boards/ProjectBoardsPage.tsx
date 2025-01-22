@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { useParams, useLocation } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { DragDropContext, DropResult } from "@hello-pangea/dnd"
 import { Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"

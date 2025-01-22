@@ -1,4 +1,4 @@
-import { NavLink, useLocation, useNavigate, useParams } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import { Home } from "lucide-react"
 import { FaTrello } from "react-icons/fa"
 import "./Sidebar.css"
@@ -12,7 +12,7 @@ export function Sidebar() {
     if (workspaceId) {
       navigate(`/workspaces/${workspaceId}/members`)
     } else {
-      alert("No workspace ID found")
+      message.error("Please select a workspace")
     }
   }
 

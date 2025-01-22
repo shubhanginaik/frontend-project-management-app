@@ -13,6 +13,7 @@ interface WorkspaceContextProps {
   pinnedProjects: PinnedProject[]
   pinProject: (project: PinnedProject) => void
   unpinProject: (projectId: string) => void
+  projects: ProjectType[]
 }
 
 const WorkspaceContext = createContext<WorkspaceContextProps | undefined>(undefined)

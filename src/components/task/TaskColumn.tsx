@@ -62,7 +62,7 @@ export const TaskColumn: React.FC<TaskColumnProps> = ({
         />
         <button
           onClick={handleAddTask}
-          className="mt-2 w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600"
+          className="mt-2 w-full bg-[rgb(38, 124, 156)] text-white py-2 rounded-md hover:bg-blue-300"
         >
           Add Task
         </button>
