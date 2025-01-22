@@ -1,0 +1,38 @@
+.round-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px; /* Equivalent to 16 Tailwind units */
+  height: 40px; /* Equivalent to 16 Tailwind units */
+  border-radius: 5px; /* Makes the shape round */
+  background-color: #2a679d; /* Your desired background color */
+  color: white; /* Text color */
+  font-size: 0.2rem; /* Equivalent to Tailwind's text-lg */
+  font-weight: 600; /* Equivalent to Tailwind's font-semibold */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow */
+  text-decoration: none; /* Removes the underline */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+.round-link:hover {
+  background-color: #23867a; /* Darker color on hover */
+}
+
+.btnlogout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px; /* Equivalent to 16 Tailwind units */
+  height: 40px; /* Equivalent to 16 Tailwind units */
+  border-radius: 5px; /* Makes the shape round */
+  background-color: #2a679d; /* Your desired background color */
+  color: white; /* Text color */
+  font-size: 0.2rem; /* Equivalent to Tailwind's text-lg */
+  font-weight: 600; /* Equivalent to Tailwind's font-semibold */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow */
+  text-decoration: none; /* Removes the underline */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+.btnlogout:hover {
+  background-color: #23867a; /* Darker color on hover */
+}

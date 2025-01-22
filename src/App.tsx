@@ -1,19 +1,25 @@
 import React from "react"
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom"
+import { Route, Routes, Navigate } from "react-router-dom"
 import { AuthProvider, useAuth } from "@/context/AuthContext"
 import { Home } from "@/pages/home/home"
+import { WorkspaceProvider } from "@/context/WokspaceContext"
 import { LoginPage } from "@/pages/login"
 import { KanbanBoard } from "@/components/board/kanban-board"
-import { DashboardPage } from "@/pages/dashboard"
+import { DashboardPage } from "@/pages/Dashboard"
 import { RoleManagement } from "@/pages/dashboard/role-management"
-import { BoardsPage } from "@/pages/dashboard/BoardsPage"
+import { BoardsPage } from "@/pages/dashboard/boards/BoardsPage"
 import { SignupPage } from "@/pages/signup"
-import { CreateWorkspacePage } from "@/pages/dashboard/workspaceDash/createWorkspacePage"
+import { CreateWorkspacePage } from "@/pages/dashboard/workspaceDash/CreateWorkspacePage"
 import { DefaultWorkspacePage } from "@/pages/dashboard/workspaceDash/DefaultWorkspacePage"
 import { WorkspaceDetailsPage } from "@/pages/dashboard/workspaceDash/WorkspaceDetailsPage"
 import { Header } from "@/components/header/header"
 import { Sidebar } from "@/components/sidebar/Sidebar"
 import "./App.css"
+import { Profile } from "./components/Profile"
+import { Settings } from "./components/Settings"
+import { ProjectBoardPage } from "./pages/dashboard/boards/ProjectBoardsPage"
+import { MembersPage } from "./pages/dashboard/workspaceDash/members/WorkspaceMembersPage"
+import { ToastProvider, ToastViewport } from "./components/ui/toast"
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth()
@@ -53,10 +59,26 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/workspaces/:id"
+        path="/workspaces/:workspaceId"
         element={
           <ProtectedRoute>
             <WorkspaceDetailsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspaces/:workspaceId/members"
+        element={
+          <ProtectedRoute>
+            <MembersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/:workspaceId/:projectId/projects"
+        element={
+          <ProtectedRoute>
+            <ProjectBoardPage />
           </ProtectedRoute>
         }
       />
@@ -76,6 +98,22 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   )
 }
@@ -83,19 +121,24 @@ function AppRoutes() {
 export function App() {
   return (
     <AuthProvider>
-      <div className="app">
-        <div className="header">
-          <Header />
-        </div>
-        <div className="layout">
-          <div className="sidebar">
-            <Sidebar />
+      <WorkspaceProvider>
+        <ToastProvider>
+          <div className="app">
+            <div className="header">
+              <Header />
+            </div>
+            <div className="layout">
+              <div className="sidebar">
+                <Sidebar />
+              </div>
+              <div className="main-content">
+                <AppRoutes />
+              </div>
+            </div>
+            <ToastViewport />
           </div>
-          <div className="main-content">
-            <AppRoutes />
-          </div>
-        </div>
-      </div>
+        </ToastProvider>
+      </WorkspaceProvider>
     </AuthProvider>
   )
 }

@@ -1,44 +1,70 @@
-import React from "react"
-import "./Sidebar.css"
+import { NavLink, useLocation, useNavigate, useParams } from "react-router-dom"
+import { Home } from "lucide-react"
 import { FaTrello } from "react-icons/fa"
-import { Link } from "react-router-dom"
+import "./Sidebar.css"
+import { useWorkspace } from "@/context/WokspaceContext"
 
 export function Sidebar() {
+  const { workspaceId, pinnedProjects } = useWorkspace()
+  const navigate = useNavigate()
+
+  const handleMembersClick = () => {
+    if (workspaceId) {
+      navigate(`/workspaces/${workspaceId}/members`)
+    } else {
+      alert("No workspace ID found")
+    }
+  }
+
   return (
     <div className="sidebar">
-      <h2>Sidebar</h2>
-
-      <p>Workspce: Which will show all the projects onclick(Allow 2-3 projects in a workspace)</p>
       <ul>
         <li>
-          <Link to="/">Home</Link>
+          <NavLink to="/" className={({ isActive }) => (isActive ? "active" : "")}>
+            <Home className="sidebar-icon" />
+            Home
+          </NavLink>
         </li>
         <li>
-          <Link to="/dashboard">Dashboard</Link>
-        </li>
-        <li>
-          <h2>Boards</h2>
-          <Link to="/boards" className="sidebar-link">
-            <FaTrello className="sidebar-icon" />
-            Boards
-          </Link>
-        </li>
-        <li>
-          <Link to="/role">Role Management</Link>
+          <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "active" : "")}>
+            Dashboard
+          </NavLink>
         </li>
 
-        <li>Members: Which will show allthe members of the workpaces</li>
         <li>
-          Your Projects:
-          <p>
-            1.It will have ... dots with options, 2.add button to add new project(board if u are
-            owner of the workspace) 3.Below this Which will show all the project a logged in user is
-            part of in that workspace
-          </p>
-          <ul>
-            <li>project a</li>
-            <li>project b</li>
-          </ul>
+          <button onClick={handleMembersClick}>Workspace Members</button>
+        </li>
+
+        <li>
+          <NavLink
+            to="/boards"
+            className={({ isActive }) => (isActive ? "active sidebar-link" : "sidebar-link")}
+          >
+            <FaTrello className="sidebar-icon" />
+            Boards
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/role" className={({ isActive }) => (isActive ? "active" : "")}>
+            Role Management
+          </NavLink>
+        </li>
+        <li>
+          <div className="pinned-projects">
+            <div className="flex items-center">
+              <FaTrello className="sidebar-icon" />
+              <h3 className="ml-2">Boards</h3>
+            </div>
+            {pinnedProjects.map((project) => (
+              <NavLink
+                key={project.id}
+                to={`/${workspaceId}/${project.id}/projects`}
+                className={({ isActive }) => (isActive ? "active sidebar-link" : "sidebar-link")}
+              >
+                {project.name}
+              </NavLink>
+            ))}
+          </div>
         </li>
       </ul>
     </div>

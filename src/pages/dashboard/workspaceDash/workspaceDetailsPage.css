@@ -1,0 +1,27 @@
+.update-form {
+  background-color: rgb(194, 194, 202);
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.update-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 150px;
+  height: 50px;
+  border-radius: 5px;
+  margin-top: 30px;
+}
+
+.project-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 50px;
+
+  border-radius: 5px;
+  margin-top: 30px;
+}

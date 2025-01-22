@@ -10,25 +10,30 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token")
-    //const currentWorkspaceId = localStorage.getItem("currentWorkspaceId")
-
+    const token = sessionStorage.getItem("accessToken")
+    const currentWorkspaceId = sessionStorage.getItem("currentWorkspaceId")
+    const workspaces = sessionStorage.getItem("workspaces")
     if (token) {
-      const decodedToken: any = jwtDecode(token)
+      interface DecodedToken {
+        exp: number
+      }
+      const decodedToken: DecodedToken = jwtDecode<DecodedToken>(token)
       const currentTime = Date.now() / 1000
 
       if (decodedToken.exp < currentTime) {
-        localStorage.removeItem("token")
-        //localStorage.removeItem("currentWorkspaceId")
+        sessionStorage.removeItem("token")
         return Promise.reject(new Error("Token is expired"))
       }
 
       // Skip adding the Authorization header for the login and signup requests
       if (!config.url?.includes("/auth/login") && !config.url?.includes("/auth/signup")) {
         config.headers.Authorization = `Bearer ${token}`
-        // if (currentWorkspaceId) {
-        //   config.headers["workspaceId"] = currentWorkspaceId
-        // }
+        if (workspaces) {
+          config.headers["workspaces"] = workspaces
+        }
+        if (currentWorkspaceId) {
+          config.headers["workspaceId"] = currentWorkspaceId
+        }
       }
     }
 

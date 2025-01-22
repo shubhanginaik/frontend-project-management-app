@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom"
-import Board from "../../components/board/Board"
+import Board from "../../../components/board/Board"
 import { boards } from "./boardsData"
 import "./BoardsPage.css"
 

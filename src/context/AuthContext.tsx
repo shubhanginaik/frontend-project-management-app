@@ -5,9 +5,9 @@ import api from "@/api"
 import {
   fetchWorkspaceUsers,
   fetchWorkspaceDetails,
-  WorkspaceDetails,
   WorkspaceDetailsResponse
-} from "@/api/Workspace"
+} from "@/api/WorkspaceUsers"
+import { updateUserProfile as updateUserProfileApi } from "@/api/memberProfile"
 
 interface DecodedToken {
   sub: string // This is the email
@@ -19,6 +19,8 @@ interface UserData {
   id: string
   email: string
   firstName: string
+  lastName: string
+  phone: string
 }
 
 interface WorkspaceUser {
@@ -32,7 +34,7 @@ interface WorkspaceUsersResponse {
   data: WorkspaceUser[]
   status: string
   code: number
-  errors: null | any
+  errors: null | unknown
 }
 
 interface AuthContextType {
@@ -42,19 +44,34 @@ interface AuthContextType {
   userId: string | null
   userEmail: string | null
   firstName: string | null
+  lastName: string | null
+  phone: string | null
   login: (email: string, password: string) => Promise<void>
   logout: () => void
   workspaces: WorkspaceDetailsResponse[]
+  updateWorkspaceDetails: (
+    workspaceId: string,
+    workspaceDetails: { name: string; description: string; type: string }
+  ) => Promise<void>
+  updateUserProfile: (profileDetails: {
+    userId: string
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+  }) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(localStorage.getItem("token"))
+  const [token, setToken] = useState<string | null>(sessionStorage.getItem("token"))
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token)
   const [userId, setUserId] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [firstName, setFirstName] = useState<string | null>(null)
+  const [lastName, setLastName] = useState<string | null>(null)
+  const [phone, setPhone] = useState<string | null>(null)
   const [workspaces, setWorkspaces] = useState<WorkspaceDetailsResponse[]>([])
 
   const queryClient = useQueryClient()
@@ -73,7 +90,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchWorkspaceData = useCallback(async (userId: string) => {
     try {
       const data = await fetchWorkspaceUsers()
-      console.log("fetchWorkspaceUsers", data)
       const workspaceUsersResponse: WorkspaceUsersResponse = data
 
       if (workspaceUsersResponse.data && Array.isArray(workspaceUsersResponse.data)) {
@@ -85,22 +101,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         )
 
         setWorkspaces(workspaceDetailsResponse)
-        console.log("Workspaces:", workspaceDetailsResponse)
+        sessionStorage.setItem("workspaces", JSON.stringify(workspaceDetailsResponse))
       } else {
-        console.error("Unexpected workspaceUsers response structure:", workspaceUsersResponse)
         setWorkspaces([])
+        sessionStorage.removeItem("workspaces")
       }
     } catch (error) {
-      console.error("Error fetching workspace data:", error)
       setWorkspaces([])
+      sessionStorage.removeItem("workspaces")
     }
   }, [])
+
+  const updateWorkspaceDetailsMutation = useMutation({
+    mutationFn: async (workspaceDetails: {
+      workspaceId: string
+      name: string
+      description: string
+    }) => {
+      return api.put(`/workspaces/${workspaceDetails.workspaceId}`, workspaceDetails)
+    },
+    onSuccess: (_, workspaceDetails) => {
+      queryClient.invalidateQueries({
+        queryKey: ["workspace-details", workspaceDetails.workspaceId]
+      })
+    },
+    onError: (error) => {
+      console.error("Error updating workspace details:", error)
+    }
+  })
+
+  const updateWorkspaceDetails = async (
+    workspaceId: string,
+    workspaceDetails: { name: string; description: string; type: string }
+  ) => {
+    try {
+      setWorkspaces((prev) =>
+        prev.map((ws) =>
+          ws.data.id === workspaceId ? { ...ws, data: { ...ws.data, ...workspaceDetails } } : ws
+        )
+      )
+      await updateWorkspaceDetailsMutation.mutateAsync({ workspaceId, ...workspaceDetails })
+      await fetchWorkspaceData(userId!)
+    } catch (error) {
+      console.error("Error updating workspace details:", error)
+    }
+  }
+
+  const updateUserProfile = async (profileDetails: {
+    userId: string
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+  }) => {
+    try {
+      const response = await updateUserProfileApi(profileDetails)
+      const updatedUser = response.data.data
+      setFirstName(updatedUser.firstName)
+      setLastName(updatedUser.lastName)
+      setUserEmail(updatedUser.email)
+      setPhone(updatedUser.phone)
+    } catch (error) {
+      console.error("Error updating profile:", error)
+      throw error
+    }
+  }
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { email: string; password: string }) => {
       const response = await api.post("/auth/login", credentials)
       if (response.data && response.data.data && response.data.data.accessToken) {
-        console.log("Login response:", response.data)
         return {
           token: response.data.data.accessToken,
           userData: response.data.data as UserData
@@ -112,35 +182,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { token: newToken, userData } = data
       setToken(newToken)
       setIsAuthenticated(true)
-      localStorage.setItem("token", newToken)
-
-      const decodedToken = decodeToken(newToken)
+      sessionStorage.setItem("token", newToken)
       setUserId(userData.id)
       setUserEmail(userData.email)
       setFirstName(userData.firstName)
-
-      console.log("Login successful, token set")
-      console.log("UserId:", userData.id)
-      console.log("UserEmail:", userData.email)
-      console.log("FirstName:", userData.firstName)
+      setLastName(userData.lastName)
+      setPhone(userData.phone)
 
       await fetchWorkspaceData(userData.id)
     },
     onError: (error) => {
-      console.error("Login error:", error)
       setIsAuthenticated(false)
       throw error
     }
   })
 
   const login = async (email: string, password: string) => {
-    console.log("Attempting login...", { email })
     await loginMutation.mutateAsync({ email, password })
   }
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      // Perform any logout API calls here if needed
       return Promise.resolve()
     },
     onSuccess: () => {
@@ -149,10 +211,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUserId(null)
       setUserEmail(null)
       setFirstName(null)
+      setLastName(null)
+      setPhone(null)
       setWorkspaces([])
-      localStorage.removeItem("token")
+      sessionStorage.removeItem("token")
+      sessionStorage.removeItem("workspaces")
+      sessionStorage.removeItem("currentWorkspaceId")
+      sessionStorage.removeItem("currentWorkspaceIdDd")
+      sessionStorage.removeItem("membersVisible")
       queryClient.clear()
-      console.log("Logged out")
     },
     onError: (error) => {
       console.error("Logout error:", error)
@@ -172,9 +239,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         userId,
         userEmail,
         firstName,
+        lastName,
+        phone,
         login,
         logout,
-        workspaces
+        workspaces,
+        updateWorkspaceDetails,
+        updateUserProfile
       }}
     >
       {children}

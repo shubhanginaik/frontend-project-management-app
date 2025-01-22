@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -10,8 +10,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Plus } from "lucide-react"
 import { useAuth } from "@/context/AuthContext"
+import { useWorkspace } from "@/context/WokspaceContext"
+import { useEffect } from "react"
 
 export function WorkspacesDropdown() {
+  const { workspaceId: urlWorkspaceId } = useParams<{ workspaceId: string }>()
+  const { setWorkspaceId } = useWorkspace()
   const navigate = useNavigate()
   const { isAuthenticated, workspaces } = useAuth()
 
@@ -20,9 +24,16 @@ export function WorkspacesDropdown() {
   const handleWorkspaceSelect = (workspaceId: string) => {
     const selectedWorkspace = workspaces.find((workspace) => workspace.data.id === workspaceId)
     if (selectedWorkspace) {
+      sessionStorage.setItem("currentWorkspaceIdDd", workspaceId)
+      sessionStorage.setItem("membersVisible", "true")
       navigate(`/workspaces/${workspaceId}`, { state: { workspace: selectedWorkspace.data } })
     }
   }
+  useEffect(() => {
+    if (urlWorkspaceId) {
+      setWorkspaceId(urlWorkspaceId)
+    }
+  }, [urlWorkspaceId, setWorkspaceId])
 
   if (!isAuthenticated) {
     return (
@@ -35,7 +46,7 @@ export function WorkspacesDropdown() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">Workspaces</Button>
+        <Button variant="default">Workspaces</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel>Your Workspaces</DropdownMenuLabel>
