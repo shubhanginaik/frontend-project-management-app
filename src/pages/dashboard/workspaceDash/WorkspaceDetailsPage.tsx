@@ -54,7 +54,11 @@ export function WorkspaceDetailsPage() {
     urlWorkspaceId || undefined
   )
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [editForm, setEditForm] = useState<WorkspaceUpdateScema>({})
+  const [editForm, setEditForm] = useState<WorkspaceUpdateScema>({
+    name: "",
+    description: "",
+    type: undefined
+  })
   const [isAddProjectDialogOpen, setIsAddProjectDialogOpen] = useState(false)
   const [newProject, setNewProject] = useState<NewProject>({
     name: "",

@@ -31,13 +31,14 @@ import {
   DialogFooter
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-
+import { useQueryClient } from "@tanstack/react-query"
 
 export function CreateWorkspacePage() {
+  const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { userId } = useAuth()
+  const { userId, fetchWorkspaceData } = useAuth()
   const { toast } = useToast()
- 
+
   const {
     data: companiesData,
     isLoading: isLoadingCompanies,
@@ -72,6 +73,11 @@ export function CreateWorkspacePage() {
         setIsCreatingNewCompany(false)
       } catch (error) {
         console.error("Error creating company:", error)
+        toast({
+          title: "Error",
+          description: (error as Error).message || "Failed to create company. Please try again.",
+          variant: "destructive"
+        })
         return
       }
     }
@@ -87,16 +93,24 @@ export function CreateWorkspacePage() {
         companyId: companyId
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           toast({
             title: "Success",
             description: "Workspace created successfully.",
             variant: "success"
           })
+          await fetchWorkspaceData(userId)
+          queryClient.invalidateQueries({ queryKey: ["workspaces"] })
           navigate("/dashboard")
         },
         onError: (error) => {
           console.error("Error creating workspace:", error)
+          toast({
+            title: "Error",
+            description:
+              (error as Error).message || "Failed to create workspace. Please try again.",
+            variant: "destructive"
+          })
         }
       }
     )
@@ -170,6 +184,8 @@ export function CreateWorkspacePage() {
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
               placeholder="Enter workspace name"
+              required
+              width={3 - 50}
             />
           </div>
           <div className="space-y-2">
@@ -212,11 +228,12 @@ export function CreateWorkspacePage() {
                   value={newCompanyName}
                   onChange={(e) => setNewCompanyName(e.target.value)}
                   placeholder="Enter new company name"
+                  required
                 />
                 <Button variant="outline" onClick={() => setIsCreatingNewCompany(false)}>
                   Cancel
                 </Button>
-                <Button variant="outline" onClick={handleCreateWorkspace}>
+                <Button variant="ghost" onClick={handleCreateWorkspace}>
                   Save
                 </Button>
               </div>
@@ -278,10 +295,10 @@ export function CreateWorkspacePage() {
               />
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsUpdatingCompany(false)}>
+              <Button variant="ghost" onClick={() => setIsUpdatingCompany(false)}>
                 Cancel
               </Button>
-              <Button variant="outline" onClick={handleUpdateCompany}>
+              <Button variant="ghost" onClick={handleUpdateCompany}>
                 Save
               </Button>
             </DialogFooter>

@@ -19,7 +19,7 @@ import { Profile } from "./components/Profile"
 import { Settings } from "./components/Settings"
 import { ProjectBoardPage } from "./pages/dashboard/boards/ProjectBoardsPage"
 import { MembersPage } from "./pages/dashboard/workspaceDash/members/WorkspaceMembersPage"
-import { ToastProvider, ToastViewport } from "./components/ui/toast"
+import { Toaster } from "./components/ui/toaster"
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
   const { isAuthenticated } = useAuth()
@@ -122,22 +122,20 @@ export function App() {
   return (
     <AuthProvider>
       <WorkspaceProvider>
-        <ToastProvider>
-          <div className="app">
-            <div className="header">
-              <Header />
-            </div>
-            <div className="layout">
-              <div className="sidebar">
-                <Sidebar />
-              </div>
-              <div className="main-content">
-                <AppRoutes />
-              </div>
-            </div>
-            <ToastViewport />
+        <div className="app">
+          <div className="header">
+            <Header />
           </div>
-        </ToastProvider>
+          <div className="layout">
+            <div className="sidebar">
+              <Sidebar />
+            </div>
+            <div className="main-content">
+              <AppRoutes />
+              <Toaster />
+            </div>
+          </div>
+        </div>
       </WorkspaceProvider>
     </AuthProvider>
   )
