@@ -1,6 +1,4 @@
 import React from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { UserTable } from "@/components/ui/user-table"
 import { WorkspacePage } from "@/pages/dashboard/workspaceDash/WorkspacesDashPage"
 
 export function DashboardPage() {

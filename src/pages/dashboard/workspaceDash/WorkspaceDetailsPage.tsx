@@ -71,11 +71,12 @@ export function WorkspaceDetailsPage() {
     status: true
   })
   const { data: projectsResponse, isLoading, error, refetch } = useProjects()
-  const updateWorkspaceMutation = useUpdateWorkspace()
+
   const addProjectMutation = useAddProject()
   const { data: workspaceDetails, refetch: refetchWorkspaceDetails } = useWorkspaceDetails(
     currentWorkspaceId || ""
   )
+  const updateWorkspaceMutation = useUpdateWorkspace()
 
   const [roles, setRoles] = useState<Role[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
@@ -97,7 +98,7 @@ export function WorkspaceDetailsPage() {
     isLoading: isLoadingMembers,
     error: membersError,
     refetch: refetchMembers
-  } = useWorkspaceMembersByWorkspace(workspaceIdDd!)
+  } = useWorkspaceMembersByWorkspace(workspaceIdDd || "")
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -353,7 +354,9 @@ export function WorkspaceDetailsPage() {
   const handleViewProject = (projectId: string, projectName: string) => {
     if (projectId && projectName) {
       pinProject({ workspaceIdDd, id: projectId, name: projectName })
-      navigate(`/${workspaceIdDd}/${projectId}/projects`, { state: { membersData } })
+      navigate(`/${workspaceIdDd}/${projectId}/projects`, {
+        state: { workspaceName: workspace.name, projectName }
+      })
     }
   }
 
@@ -416,15 +419,15 @@ export function WorkspaceDetailsPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
-              <Card key={project.id}>
+              <Card key={project.id} className="project-card">
                 <CardHeader>
                   <CardTitle>{project.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-600 mb-2">{project.description}</p>
                   <div className="text-xs text-gray-500">
-                    <p>Start: {new Date(project.startDate).toLocaleDateString()}</p>
-                    <p>End: {new Date(project.endDate).toLocaleDateString()}</p>
+                    <p>Start Date: {new Date(project.startDate).toLocaleDateString()}</p>
+                    <p>End Date: {new Date(project.endDate).toLocaleDateString()}</p>
                     <p>Status: {project.status ? "Active" : "Inactive"}</p>
                   </div>
                   <Button

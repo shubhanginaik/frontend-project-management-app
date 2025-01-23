@@ -123,7 +123,7 @@ export function TaskDetailsDialog({
       const comment: Omit<Comment, "id"> = {
         taskId: task.id,
         content: newComment,
-        createdBy: userId || "" // Replace with actual user ID
+        createdBy: userId!
       }
       addCommentMutation.mutate(comment, {
         onSuccess: () => {

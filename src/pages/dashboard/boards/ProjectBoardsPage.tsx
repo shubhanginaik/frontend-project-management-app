@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useLocation, useParams } from "react-router-dom"
 import { DragDropContext, DropResult } from "@hello-pangea/dnd"
 import { Loader2 } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
@@ -18,6 +18,9 @@ interface Column {
 
 export function ProjectBoardPage() {
   const { workspaceId, projectId } = useParams<{ workspaceId: string; projectId: string }>()
+
+  const location = useLocation()
+  const { workspaceName, projectName } = location.state || {}
   const { data: membersData, refetch: refetchMembers } = useWorkspaceMembersByWorkspace(
     workspaceId || ""
   )
@@ -213,6 +216,9 @@ export function ProjectBoardPage() {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Project Board</h1>
+      <h2 className="text-lg font-bold mb-4">
+        {workspaceName} : {projectName}
+      </h2>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex space-x-4 overflow-x-auto pb-4">
           {columns.map((column) => (
