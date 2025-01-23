@@ -259,14 +259,28 @@ export function WorkspaceDetailsPage() {
   const handleAddProjectSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!workspace) return
-    const sixMonthsLater = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString()
+
+    console.log("sixMonthsLater", newProject.startDate)
+    const convertDateFormat = (dateString: string) => {
+      if (!dateString) return ""
+      const [year, month, day] = dateString.split("-").map(Number)
+      if (!year || !month || !day) {
+        return ""
+      }
+      const date = new Date(year, month - 1, day)
+      // Set a specific time if needed, here we set it to 20:22:53.802
+      date.setHours(20, 22, 53, 802)
+      return date.toISOString()
+    }
+
+    const newProjectStartDate = convertDateFormat(newProject?.startDate || "")
     const newProjectData: Omit<Project, "id"> = {
       ...newProject,
       name: newProject?.name || "",
       description: newProject?.description || "",
-      createdDate: "",
-      startDate: sixMonthsLater,
-      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString(),
+      createdDate: new Date(new Date().setFullYear(new Date().getFullYear())).toISOString(),
+      startDate: newProjectStartDate,
+      endDate: convertDateFormat(newProject?.endDate || ""),
       createdByUserId: workspace.createdBy,
       workspaceId: workspace.id,
       status: true
@@ -278,11 +292,11 @@ export function WorkspaceDetailsPage() {
         setNewProject({
           name: "",
           description: "",
-          createdDate: new Date(new Date().setFullYear(new Date().getFullYear())).toISOString(),
-          startDate: sixMonthsLater,
+          createdDate: "",
+          startDate: "",
           endDate: "",
-          createdByUserId: userId || "",
-          workspaceId: currentWorkspaceId || initialWorkspace?.id || "",
+          createdByUserId: "",
+          workspaceId: "",
           status: true
         })
         toast({
@@ -487,6 +501,17 @@ export function WorkspaceDetailsPage() {
                   type="date"
                   value={newProject.startDate}
                   onChange={(e) => setNewProject({ ...newProject, startDate: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="projectEndDate">End Date</Label>
+                <Input
+                  id="projectEndDate"
+                  name="endDate"
+                  type="date"
+                  value={newProject.endDate}
+                  onChange={(e) => setNewProject({ ...newProject, endDate: e.target.value })}
                   required
                 />
               </div>
