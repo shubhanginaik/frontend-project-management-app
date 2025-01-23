@@ -23,6 +23,15 @@ export function Sidebar() {
     }
   }
 
+  // const handleViewProject = (workspaceId: string, projectId: string, projectName: string) => {
+  //   const workspace = workspaces.find((ws) => ws.id === workspaceId)
+  //   if (workspace) {
+  //     navigate(`/${workspaceId}/${projectId}/projects`, {
+  //       state: { workspaceName: workspace.name, projectName }
+  //     })
+  //   }
+  // }
+
   return (
     <div className="sidebar">
       <ul>
@@ -90,7 +99,7 @@ export function Sidebar() {
                 <CardContent className="card-content">
                   <Button
                     className="view-project-button"
-                    onClick={() => navigate(`/${workspaceId}/${project.id}/projects`)}
+                    onClick={() => navigate(`/workspaces/${workspaceId}/${project.id}/projects`)}
                   >
                     View Project
                   </Button>

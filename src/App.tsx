@@ -64,7 +64,7 @@ function AppRoutes() {
         }
       />
       <Route
-        path="/:workspaceId/:projectId/projects"
+        path="/workspaces/:workspaceId/:projectId/projects"
         element={
           <ProtectedRoute>
             <ProjectBoardPage />

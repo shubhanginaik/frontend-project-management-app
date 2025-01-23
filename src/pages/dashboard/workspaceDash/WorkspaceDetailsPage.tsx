@@ -36,7 +36,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import "./workspaceDetailsPage.css"
+import "./styles/workspaceDetailsPage.css"
 import { fetchAllRoles, fetchRoleDetails, Role } from "@/hooks/useRole"
 import { useWorkspace } from "@/context/WokspaceContext"
 import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
@@ -354,7 +354,7 @@ export function WorkspaceDetailsPage() {
   const handleViewProject = (projectId: string, projectName: string) => {
     if (projectId && projectName) {
       pinProject({ workspaceIdDd, id: projectId, name: projectName })
-      navigate(`/${workspaceIdDd}/${projectId}/projects`, {
+      navigate(`/workspaces/${workspaceIdDd}/${projectId}/projects`, {
         state: { workspaceName: workspace.name, projectName }
       })
     }

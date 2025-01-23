@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback } from "react"
 import { useQueryClient } from "@tanstack/react-query"
+import { useAuth } from "./AuthContext"
+import { Workspace } from "@/api/WorkspaceUsers"
 
 export interface PinnedProject {
   id: string
@@ -14,6 +16,7 @@ interface WorkspaceContextProps {
   pinProject: (project: PinnedProject) => void
   unpinProject: (projectId: string) => void
   projects: ProjectType[]
+  workspaces: Workspace[]
 }
 
 const WorkspaceContext = createContext<WorkspaceContextProps | undefined>(undefined)
@@ -22,6 +25,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
   const [workspaceId, setWorkspaceId] = useState<string | null>(null)
   const [pinnedProjects, setPinnedProjects] = useState<PinnedProject[]>([])
   const queryClient = useQueryClient()
+  const { workspaces } = useAuth()
 
   const refetchMembers = useCallback(() => {
     if (workspaceId) {
@@ -46,6 +50,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({ children 
     <WorkspaceContext.Provider
       value={{
         workspaceId,
+        workspaces,
         setWorkspaceId,
         refetchMembers,
         pinnedProjects,

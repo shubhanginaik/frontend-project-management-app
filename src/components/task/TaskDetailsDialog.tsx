@@ -31,6 +31,7 @@ interface TaskDetailsDialogProps {
   task: Task | null
   membersData: { userId: string; firstName: string; lastName: string }[]
   workspaceId: string
+  projectId: string
   onClose: () => void
   onUpdate: (taskId: string, updatedTask: Partial<Task>) => void
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void
@@ -40,6 +41,7 @@ interface TaskDetailsDialogProps {
 export function TaskDetailsDialog({
   task,
   workspaceId,
+  projectId,
   onClose,
   onUpdate,
   onFileUpload,
@@ -48,12 +50,12 @@ export function TaskDetailsDialog({
   const { toast } = useToast()
   const updateTaskMutation = useUpdateTask()
   const addCommentMutation = useAddComment()
-  const { data: comments = [], refetch } = useComments(task?.id || "")
+  const { data: comments = [], refetch } = useComments(task?.id || "123")
   const {
     data: activitiesData,
     error: activitiesError,
     isLoading: isLoadingActivities
-  } = useActivityLogs(task?.id || "")
+  } = useActivityLogs(task?.id || "123")
   const [assignedUserId, setAssignedUserId] = useState<string | null>(task?.assignedUserId || null)
   const [taskDetails, setTaskDetails] = useState<Partial<Task>>({})
   const [newComment, setNewComment] = useState<string>("")
