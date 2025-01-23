@@ -42,11 +42,11 @@ export function Sidebar() {
           <button onClick={handleMembersClick}>Workspace Members</button>
         </li>
 
-        <li>
+        {/* <li>
           <NavLink to="/role" className={({ isActive }) => (isActive ? "active" : "")}>
             Role Management
           </NavLink>
-        </li>
+        </li> */}
         <li>
           <div className="pinned-projects">
             <div className="flex items-center">

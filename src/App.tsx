@@ -5,7 +5,7 @@ import { Home } from "@/pages/home/home"
 import { WorkspaceProvider } from "@/context/WokspaceContext"
 import { LoginPage } from "@/pages/login"
 import { DashboardPage } from "@/pages/Dashboard"
-import { RoleManagement } from "@/pages/dashboard/role-management"
+//import { RoleManagement } from "@/pages/dashboard/role-management"
 import { SignupPage } from "@/pages/signup"
 import { CreateWorkspacePage } from "@/pages/dashboard/workspaceDash/CreateWorkspacePage"
 import { WorkspaceDetailsPage } from "@/pages/dashboard/workspaceDash/WorkspaceDetailsPage"
@@ -69,14 +69,14 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route
+      {/* <Route
         path="/role"
         element={
           <ProtectedRoute>
             <RoleManagement />
           </ProtectedRoute>
         }
-      />
+      /> */}
       <Route
         path="/profile"
         element={
