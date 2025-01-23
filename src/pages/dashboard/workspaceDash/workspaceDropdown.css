@@ -1,0 +1,6 @@
+.workspaces-dropdown-container {
+  background-color: #f0f4f8; /* Light background color */
+  padding: 16px; /* Padding around the dropdown */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}

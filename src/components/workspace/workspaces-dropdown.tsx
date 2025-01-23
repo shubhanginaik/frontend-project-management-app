@@ -48,7 +48,7 @@ export function WorkspacesDropdown() {
       <DropdownMenuTrigger asChild>
         <Button variant="default">Workspaces</Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
         <DropdownMenuLabel>Your Workspaces</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {workspaces.length > 0 ? (

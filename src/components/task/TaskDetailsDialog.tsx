@@ -130,7 +130,7 @@ export function TaskDetailsDialog({
       addCommentMutation.mutate(comment, {
         onSuccess: () => {
           setNewComment("")
-          refetch() // Fetch all comments again after adding a new comment
+          refetch()
         },
         onError: (error) => {
           console.error("Error adding comment:", error)

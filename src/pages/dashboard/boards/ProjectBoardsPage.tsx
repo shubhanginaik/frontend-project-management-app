@@ -239,6 +239,7 @@ export function ProjectBoardPage() {
         task={selectedTask}
         membersData={membersData || []}
         workspaceId={workspaceId || ""}
+        projectId={projectId || ""}
         onClose={handleCloseDialog}
         onUpdate={(taskId, updatedTask) =>
           updateTaskMutation.mutate(

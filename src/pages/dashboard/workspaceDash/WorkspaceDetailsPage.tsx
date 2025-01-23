@@ -353,7 +353,9 @@ export function WorkspaceDetailsPage() {
 
   const handleViewProject = (projectId: string, projectName: string) => {
     if (projectId && projectName) {
-      pinProject({ workspaceIdDd, id: projectId, name: projectName })
+      if (workspaceIdDd) {
+        pinProject({ workspaceId: workspaceIdDd, id: projectId, name: projectName })
+      }
       navigate(`/workspaces/${workspaceIdDd}/${projectId}/projects`, {
         state: { workspaceName: workspace.name, projectName }
       })
@@ -445,7 +447,9 @@ export function WorkspaceDetailsPage() {
       )}
 
       <>
-        <Button onClick={() => setIsAddProjectDialogOpen(true)}>Add Project</Button>
+        <Button variant="ghost" onClick={() => setIsAddProjectDialogOpen(true)}>
+          Add Project
+        </Button>
         <Dialog open={isAddProjectDialogOpen} onOpenChange={setIsAddProjectDialogOpen}>
           <DialogOverlay className="bg-blue-100/80 backdrop-blur-sm" />
           <DialogContent className="bg-white dark:bg-gray-800">
@@ -497,7 +501,7 @@ export function WorkspaceDetailsPage() {
                   placeholder="Active/Inactive"
                 />
               </div>
-              <Button type="submit" disabled={addProjectMutation.isPending}>
+              <Button variant="ghost" type="submit" disabled={addProjectMutation.isPending}>
                 {addProjectMutation.isPending ? "Adding..." : "Add Project"}
               </Button>
             </form>

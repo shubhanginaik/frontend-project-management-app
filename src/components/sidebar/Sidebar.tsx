@@ -3,9 +3,9 @@ import { Home } from "lucide-react"
 import { FaTrello } from "react-icons/fa"
 import "./Sidebar.css"
 import { useWorkspace } from "@/context/WokspaceContext"
-import { CardContent } from "@/components/ui/Card"
-import { Button } from "@/components/ui/Button"
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/Card"
+import { CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 
 export function Sidebar() {
   const { workspaceId, pinnedProjects, unpinProject } = useWorkspace()
@@ -19,18 +19,9 @@ export function Sidebar() {
     if (workspaceId) {
       navigate(`/workspaces/${workspaceId}/members`)
     } else {
-      message.error("Please select a workspace")
+      console.error("Workspace ID not found")
     }
   }
-
-  // const handleViewProject = (workspaceId: string, projectId: string, projectName: string) => {
-  //   const workspace = workspaces.find((ws) => ws.id === workspaceId)
-  //   if (workspace) {
-  //     navigate(`/${workspaceId}/${projectId}/projects`, {
-  //       state: { workspaceName: workspace.name, projectName }
-  //     })
-  //   }
-  // }
 
   return (
     <div className="sidebar">
@@ -68,9 +59,7 @@ export function Sidebar() {
                   <div className="flex items-center justify-between w-full">
                     <div>
                       <CardTitle className="card-title">{project.name}</CardTitle>
-                      <CardDescription className="card-description">
-                        {project.description}
-                      </CardDescription>
+                      <CardDescription className="card-description"></CardDescription>
                     </div>
                     <Button
                       variant="ghost"
@@ -101,7 +90,7 @@ export function Sidebar() {
                     className="view-project-button"
                     onClick={() => navigate(`/workspaces/${workspaceId}/${project.id}/projects`)}
                   >
-                    View Project
+                    View Board
                   </Button>
                 </CardContent>
               </Card>
