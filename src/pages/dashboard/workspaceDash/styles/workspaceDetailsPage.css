@@ -25,3 +25,12 @@
   border-radius: 5px;
   margin-top: 30px;
 }
+.project-card {
+  background: linear-gradient(135deg, #9ad7ff 20%, #8644ac 70%, #f0b5a4 100%);
+  padding: 15px;
+  border-radius: 5px;
+  padding: 0%;
+  border-radius: 5px;
+  min-height: 220px;
+  height: auto;
+}

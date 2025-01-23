@@ -42,7 +42,9 @@ export function CreateMemberPage() {
             required
           />
         </div>
-        <Button type="submit">Create Member</Button>
+        <Button variant="ghost" className="mt-4 text-white px-4 py-2 rounded " type="submit">
+          Create Member
+        </Button>
       </form>
     </div>
   )

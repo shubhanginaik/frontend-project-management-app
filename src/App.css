@@ -17,7 +17,6 @@
 .layout {
   display: flex;
   flex: 1;
-  width: 100%;
 }
 
 .sidebar {
@@ -31,7 +30,7 @@
   background-color: var(--background-color);
   color: var(--text-color);
   padding: 1rem;
-  margin-left: 10px;
+  border: 1px solid rgb(161, 155, 155);
 }
 
 /* Ensure that on smaller screens, the layout becomes vertical */

@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from "@/components/ui/table"
+
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -153,6 +146,7 @@ export function MembersPage() {
               <Button
                 onClick={() => setMessage(null)}
                 className="mt-4 bg-[#efb6c8] text-white px-4 py-2 rounded hover:bg-[#dba4b3]"
+                variant="blue"
               >
                 Close
               </Button>
@@ -162,40 +156,49 @@ export function MembersPage() {
       )}
       <Button
         onClick={() => setIsModalOpen(true)}
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+        variant="ghost"
+        className="mt-4 text-white px-4 py-2 rounded hover:bg-gray-600"
       >
         Create New Member
       </Button>
-      <Table className="table mt-4">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {detailedMembers.map((member) => (
-            <TableRow key={member.id}>
-              <TableCell>{`${member.firstName} ${member.lastName}`}</TableCell>
-              <TableCell>{member.email}</TableCell>
-              <TableCell>{member.roleName}</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(member.userId)}
-                  disabled={isDeletingUser}
-                >
-                  {isDeletingUser ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Delete"}
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="member-table" style={{ marginTop: "1rem" }}>
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white">
+            <thead>
+              <tr>
+                <th className="py-2 px-4 border-b">Name</th>
+                <th className="py-2 px-4 border-b">Email</th>
+                <th className="py-2 px-4 border-b">Role</th>
+                <th className="py-2 px-4 border-b">Status</th>
+                <th className="py-2 px-4 border-b">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {detailedMembers.map((member) => (
+                <tr key={member.id}>
+                  <td className="py-2 px-4 border-b">{`${member.firstName} ${member.lastName}`}</td>
+                  <td className="py-2 px-4 border-b">{member.email}</td>
+                  <td className="py-2 px-4 border-b">{member.roleName}</td>
+                  <td className="py-2 px-4 border-b">Active</td>
+                  <td className="py-2 px-4 border-b">
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDelete(member.userId)}
+                      disabled={isDeletingUser}
+                    >
+                      {isDeletingUser ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        "Delete"
+                      )}
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
       {isModalOpen && (
         <Modal onClose={() => setIsModalOpen(false)}>
           <CreateMemberForm

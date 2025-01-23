@@ -92,7 +92,9 @@ export function ProfileUpdateForm() {
           required
         />
       </div>
-      <Button type="submit">Update Profile</Button>
+      <Button variant="ghost" type="submit">
+        Update Profile
+      </Button>
     </form>
   )
 }

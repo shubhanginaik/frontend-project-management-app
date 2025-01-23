@@ -36,3 +36,6 @@
 .btnlogout:hover {
   background-color: #23867a; /* Darker color on hover */
 }
+.btnclose {
+  background-color: #2a679d;
+}

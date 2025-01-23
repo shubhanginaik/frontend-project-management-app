@@ -36,7 +36,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
-import "./workspaceDetailsPage.css"
+import "./styles/workspaceDetailsPage.css"
 import { fetchAllRoles, fetchRoleDetails, Role } from "@/hooks/useRole"
 import { useWorkspace } from "@/context/WokspaceContext"
 import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
@@ -71,11 +71,12 @@ export function WorkspaceDetailsPage() {
     status: true
   })
   const { data: projectsResponse, isLoading, error, refetch } = useProjects()
-  const updateWorkspaceMutation = useUpdateWorkspace()
+
   const addProjectMutation = useAddProject()
   const { data: workspaceDetails, refetch: refetchWorkspaceDetails } = useWorkspaceDetails(
     currentWorkspaceId || ""
   )
+  const updateWorkspaceMutation = useUpdateWorkspace()
 
   const [roles, setRoles] = useState<Role[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
@@ -97,7 +98,7 @@ export function WorkspaceDetailsPage() {
     isLoading: isLoadingMembers,
     error: membersError,
     refetch: refetchMembers
-  } = useWorkspaceMembersByWorkspace(workspaceIdDd!)
+  } = useWorkspaceMembersByWorkspace(workspaceIdDd || "")
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -258,14 +259,28 @@ export function WorkspaceDetailsPage() {
   const handleAddProjectSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!workspace) return
-    const sixMonthsLater = new Date(new Date().setMonth(new Date().getMonth() + 6)).toISOString()
+
+    console.log("sixMonthsLater", newProject.startDate)
+    const convertDateFormat = (dateString: string) => {
+      if (!dateString) return ""
+      const [year, month, day] = dateString.split("-").map(Number)
+      if (!year || !month || !day) {
+        return ""
+      }
+      const date = new Date(year, month - 1, day)
+      // Set a specific time if needed, here we set it to 20:22:53.802
+      date.setHours(20, 22, 53, 802)
+      return date.toISOString()
+    }
+
+    const newProjectStartDate = convertDateFormat(newProject?.startDate || "")
     const newProjectData: Omit<Project, "id"> = {
       ...newProject,
       name: newProject?.name || "",
       description: newProject?.description || "",
-      createdDate: "",
-      startDate: sixMonthsLater,
-      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 2)).toISOString(),
+      createdDate: new Date(new Date().setFullYear(new Date().getFullYear())).toISOString(),
+      startDate: newProjectStartDate,
+      endDate: convertDateFormat(newProject?.endDate || ""),
       createdByUserId: workspace.createdBy,
       workspaceId: workspace.id,
       status: true
@@ -277,11 +292,11 @@ export function WorkspaceDetailsPage() {
         setNewProject({
           name: "",
           description: "",
-          createdDate: new Date(new Date().setFullYear(new Date().getFullYear())).toISOString(),
-          startDate: sixMonthsLater,
+          createdDate: "",
+          startDate: "",
           endDate: "",
-          createdByUserId: userId || "",
-          workspaceId: currentWorkspaceId || initialWorkspace?.id || "",
+          createdByUserId: "",
+          workspaceId: "",
           status: true
         })
         toast({
@@ -352,8 +367,12 @@ export function WorkspaceDetailsPage() {
 
   const handleViewProject = (projectId: string, projectName: string) => {
     if (projectId && projectName) {
-      pinProject({ workspaceIdDd, id: projectId, name: projectName })
-      navigate(`/${workspaceIdDd}/${projectId}/projects`, { state: { membersData } })
+      if (workspaceIdDd) {
+        pinProject({ workspaceId: workspaceIdDd, id: projectId, name: projectName })
+      }
+      navigate(`/workspaces/${workspaceIdDd}/${projectId}/projects`, {
+        state: { workspaceName: workspace.name, projectName }
+      })
     }
   }
 
@@ -416,15 +435,15 @@ export function WorkspaceDetailsPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
-              <Card key={project.id}>
+              <Card key={project.id} className="project-card">
                 <CardHeader>
                   <CardTitle>{project.name}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-600 mb-2">{project.description}</p>
                   <div className="text-xs text-gray-500">
-                    <p>Start: {new Date(project.startDate).toLocaleDateString()}</p>
-                    <p>End: {new Date(project.endDate).toLocaleDateString()}</p>
+                    <p>Start Date: {new Date(project.startDate).toLocaleDateString()}</p>
+                    <p>End Date: {new Date(project.endDate).toLocaleDateString()}</p>
                     <p>Status: {project.status ? "Active" : "Inactive"}</p>
                   </div>
                   <Button
@@ -442,7 +461,9 @@ export function WorkspaceDetailsPage() {
       )}
 
       <>
-        <Button onClick={() => setIsAddProjectDialogOpen(true)}>Add Project</Button>
+        <Button variant="ghost" onClick={() => setIsAddProjectDialogOpen(true)}>
+          Add Project
+        </Button>
         <Dialog open={isAddProjectDialogOpen} onOpenChange={setIsAddProjectDialogOpen}>
           <DialogOverlay className="bg-blue-100/80 backdrop-blur-sm" />
           <DialogContent className="bg-white dark:bg-gray-800">
@@ -484,6 +505,17 @@ export function WorkspaceDetailsPage() {
                 />
               </div>
               <div>
+                <Label htmlFor="projectEndDate">End Date</Label>
+                <Input
+                  id="projectEndDate"
+                  name="endDate"
+                  type="date"
+                  value={newProject.endDate}
+                  onChange={(e) => setNewProject({ ...newProject, endDate: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
                 <Label htmlFor="projectstatus"> Status</Label>
                 <Input
                   id="projectstatus"
@@ -494,7 +526,7 @@ export function WorkspaceDetailsPage() {
                   placeholder="Active/Inactive"
                 />
               </div>
-              <Button type="submit" disabled={addProjectMutation.isPending}>
+              <Button variant="ghost" type="submit" disabled={addProjectMutation.isPending}>
                 {addProjectMutation.isPending ? "Adding..." : "Add Project"}
               </Button>
             </form>
