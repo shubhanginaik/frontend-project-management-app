@@ -25,7 +25,7 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { toast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { useUpdateWorkspace, Workspace, WorkspaceUpdateScema } from "@/hooks/useWorkspaces"
 import { fetchUserDetails, useWorkspaceMembersByWorkspace } from "@/api/WorkspaceUsers"
 import {
@@ -49,6 +49,7 @@ export function WorkspaceDetailsPage() {
   const { workspaces, userId, updateWorkspaceDetails } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
+  const { toast } = useToast()
   const { workspace: initialWorkspace } = location.state || {}
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | undefined>(
     urlWorkspaceId || undefined
@@ -260,7 +261,6 @@ export function WorkspaceDetailsPage() {
     e.preventDefault()
     if (!workspace) return
 
-    console.log("sixMonthsLater", newProject.startDate)
     const convertDateFormat = (dateString: string) => {
       if (!dateString) return ""
       const [year, month, day] = dateString.split("-").map(Number)
@@ -274,6 +274,15 @@ export function WorkspaceDetailsPage() {
     }
 
     const newProjectStartDate = convertDateFormat(newProject?.startDate || "")
+    const currentDate = new Date().toISOString()
+    if (newProjectStartDate <= currentDate) {
+      toast({
+        title: "Error",
+        description: "Start date must be greater than the current date.",
+        variant: "destructive"
+      })
+      return
+    }
     const newProjectData: Omit<Project, "id"> = {
       ...newProject,
       name: newProject?.name || "",
@@ -409,9 +418,6 @@ export function WorkspaceDetailsPage() {
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <strong>Created:</strong> {new Date(workspace.createdDate).toLocaleDateString()}
-            </div>
-            <div>
-              <strong>Owner:</strong> {workspace.createdBy}
             </div>
             <div>
               <strong>Status:</strong> {workspace.type ? "Active" : "Inactive"}

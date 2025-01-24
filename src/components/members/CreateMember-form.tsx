@@ -11,7 +11,7 @@ import "./createMember.css"
 import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
 import { useAuth } from "@/context/AuthContext"
 import { useGetWorkspaceUser } from "@/hooks/useWorkspaces"
-import { toast } from "../ui/use-toast"
+import { useToast } from "../ui/use-toast"
 
 interface CreateMemberFormProps {
   workspaceId: string
@@ -26,6 +26,7 @@ export function CreateMemberForm({ workspaceId, onClose, refetchMembers }: Creat
   const [password, setPassword] = useState("")
   const navigate = useNavigate()
   const { userId } = useAuth()
+  const { toast } = useToast()
   const {
     mutate: createUser,
     isPending: isCreatingUser,
@@ -46,14 +47,14 @@ export function CreateMemberForm({ workspaceId, onClose, refetchMembers }: Creat
   const isAdmin = workspaceUserData?.data?.roleId === adminRoleId
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isAdmin) {
-      toast({
-        title: "Permission Denied",
-        description: "Only admins can add members",
-        variant: "destructive"
-      })
-      return
-    }
+    // if (!isAdmin) {
+    //   toast({
+    //     title: "Permission Denied",
+    //     description: "Only admins can add members",
+    //     variant: "destructive"
+    //   })
+    //   return
+    // }
 
     createUser(
       { firstName, lastName, email, password, phone: "4053642524", profileImage: "", url: "" },
@@ -65,11 +66,21 @@ export function CreateMemberForm({ workspaceId, onClose, refetchMembers }: Creat
               { userId: user.data.id, workspaceId, roleId: memberRole.id },
               {
                 onSuccess: () => {
+                  toast({
+                    title: "Success",
+                    description: "User added to workspace",
+                    variant: "success"
+                  })
                   refetchMembers()
                   onClose()
                   navigate(`/workspaces/${workspaceId}/members`)
                 },
                 onError: (error) => {
+                  toast({
+                    title: "Error",
+                    description: "Error adding user to workspace",
+                    variant: "destructive"
+                  })
                   console.error("Error adding user to workspace:", error)
                 }
               }

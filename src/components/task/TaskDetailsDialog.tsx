@@ -50,12 +50,12 @@ export function TaskDetailsDialog({
   const { toast } = useToast()
   const updateTaskMutation = useUpdateTask()
   const addCommentMutation = useAddComment()
-  const { data: comments = [], refetch } = useComments(task?.id || "123")
+  const { data: comments = [], refetch } = useComments(task?.id || "")
   const {
     data: activitiesData,
     error: activitiesError,
     isLoading: isLoadingActivities
-  } = useActivityLogs(task?.id || "123")
+  } = useActivityLogs(task?.id || "")
   const [assignedUserId, setAssignedUserId] = useState<string | null>(task?.assignedUserId || null)
   const [taskDetails, setTaskDetails] = useState<Partial<Task>>({})
   const [newComment, setNewComment] = useState<string>("")

@@ -77,17 +77,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const queryClient = useQueryClient()
 
-  const decodeToken = useCallback((token: string) => {
-    try {
-      const decoded = jwtDecode<DecodedToken>(token)
-      setUserEmail(decoded.sub)
-      return { userEmail: decoded.sub }
-    } catch (error) {
-      console.error("Error decoding token:", error)
-      return { userEmail: null }
-    }
-  }, [])
-
   const fetchWorkspaceData = useCallback(async (userId: string) => {
     try {
       const data = await fetchWorkspaceUsers()
@@ -158,7 +147,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }) => {
     try {
       const response = await updateUserProfileApi(profileDetails)
-      const updatedUser = response.data.data
+      const updatedUser = response
       setFirstName(updatedUser.firstName)
       setLastName(updatedUser.lastName)
       setUserEmail(updatedUser.email)
