@@ -89,7 +89,6 @@ export function ProfileUpdateForm() {
           value={userData.phone}
           onChange={handleChange}
           placeholder="Enter your phone number"
-          required
         />
       </div>
       <Button variant="ghost" type="submit">

@@ -16,6 +16,7 @@ import {
 } from "@/api/WorkspaceUsers"
 import { useDeleteUserFromWorkspaceUsers } from "@/hooks/useDeleteUser"
 import { useWorkspace } from "@/context/WokspaceContext"
+import { toast } from "@/components/ui/use-toast"
 
 export function MembersPage() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
@@ -64,7 +65,11 @@ export function MembersPage() {
   const handleDelete = async (memberId: string) => {
     const loggedInUser = detailedMembers?.find((member) => member.userId === userId)
     if (!loggedInUser || loggedInUser.roleName !== "ADMIN") {
-      return <h1>You do not have permission to delete members.</h1>
+      return toast({
+        title: "Error",
+        description: "You are not authorized to delete members from this workspace.",
+        variant: "destructive"
+      })
     }
 
     try {
@@ -79,13 +84,21 @@ export function MembersPage() {
           const adminCount = detailedMembers?.filter((member) => member.roleName === "ADMIN").length
 
           if (isAdmin && adminCount === 1) {
-            alert("You cannot delete yourself as the only admin. Please contact a superadmin.")
+            toast({
+              title: "Error",
+              description: "You cannot delete the last admin of a workspace.",
+              variant: "destructive"
+            })
             return
           }
 
           deleteUser(workspaceUser.id, {
             onSuccess: () => {
-              setMessage({ type: "success", text: "Successfully deleted the workspace user." })
+              toast({
+                title: "Success",
+                description: "User deleted from workspace",
+                variant: "success"
+              })
               refetch()
             },
             onError: (error) => {
@@ -99,12 +112,26 @@ export function MembersPage() {
         }
       }
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: "Error while fetching the workspace user. Please try again."
+      toast({
+        title: "Error",
+        description: "Error fetching workspace user. Please try again.",
+        variant: "destructive"
       })
       console.error("Error fetching workspace user:", error)
     }
+  }
+
+  const handleCreateMemberClick = () => {
+    const loggedInUser = detailedMembers?.find((member) => member.userId === userId)
+    if (!loggedInUser || loggedInUser.roleName !== "ADMIN") {
+      toast({
+        title: "Error",
+        description: "You are not authorized to create a new member for this workspace.",
+        variant: "destructive"
+      })
+      return
+    }
+    setIsModalOpen(true)
   }
 
   if (isLoading || isLoadingDetails) {
@@ -155,7 +182,7 @@ export function MembersPage() {
         </div>
       )}
       <Button
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => handleCreateMemberClick()}
         variant="ghost"
         className="mt-4 text-white px-4 py-2 rounded hover:bg-gray-600"
       >
