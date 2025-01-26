@@ -42,7 +42,8 @@ export function CreateWorkspacePage() {
   const {
     data: companiesData,
     isLoading: isLoadingCompanies,
-    error: companiesError
+    error: companiesError,
+    refetch: refetchCompanies
   } = useCompanies()
   const createCompanyMutation = useCreateCompany()
   const updateCompanyMutation = useUpdateCompany()
@@ -56,33 +57,34 @@ export function CreateWorkspacePage() {
   const [updatingCompanyName, setUpdatingCompanyName] = useState("")
   const [isCreatingNewCompany, setIsCreatingNewCompany] = useState(false)
   const [isUpdatingCompany, setIsUpdatingCompany] = useState(false)
+  const [error, setError] = useState("")
+
+  const validateWorkspaceForm = () => {
+    if (!workspaceName) {
+      setError("Workspace name is required.")
+      return false
+    }
+    if (!workspaceDescription) {
+      setError("Workspace description is required.")
+      return false
+    }
+    if (!workspaceType) {
+      setError("Workspace type is required.")
+      return false
+    }
+    if (!selectedCompanyId) {
+      setError("Company selection is required.")
+      return false
+    }
+    setError("")
+    return true
+  }
 
   const handleCreateWorkspace = async () => {
-    if (!userId || (!selectedCompanyId && !newCompanyName)) return
-
-    let companyId = selectedCompanyId
-
-    if (isCreatingNewCompany && newCompanyName) {
-      try {
-        const newCompany = await createCompanyMutation.mutateAsync({
-          name: newCompanyName,
-          createdBy: userId
-        })
-        companyId = newCompany.data.id
-        setNewCompanyName("")
-        setIsCreatingNewCompany(false)
-      } catch (error) {
-        console.error("Error creating company:", error)
-        toast({
-          title: "Error",
-          description: (error as Error).message || "Failed to create company. Please try again.",
-          variant: "destructive"
-        })
-        return
-      }
+    if (!validateWorkspaceForm()) {
+      return
     }
-
-    if (!companyId) return
+    if (!userId || !selectedCompanyId) return
 
     createWorkspaceMutation.mutate(
       {
@@ -90,7 +92,7 @@ export function CreateWorkspacePage() {
         description: workspaceDescription,
         type: workspaceType,
         createdBy: userId,
-        companyId: companyId
+        companyId: selectedCompanyId
       },
       {
         onSuccess: async () => {
@@ -116,6 +118,40 @@ export function CreateWorkspacePage() {
     )
   }
 
+  const handleCreateCompany = async () => {
+    if (!newCompanyName) {
+      toast({
+        title: "Error",
+        description: "Company name is required.",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      const newCompany = await createCompanyMutation.mutateAsync({
+        name: newCompanyName,
+        createdBy: userId!
+      })
+      setNewCompanyName("")
+      setIsCreatingNewCompany(false)
+      toast({
+        title: "Success",
+        description: "Company created successfully.",
+        variant: "success"
+      })
+      await refetchCompanies()
+      setSelectedCompanyId(newCompany.data.id)
+    } catch (error) {
+      console.error("Error creating company:", error)
+      toast({
+        title: "Error",
+        description: (error as Error).message || "Failed to create company. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
   const handleUpdateCompany = async () => {
     if (!selectedCompanyId || !updatingCompanyName) {
       toast({
@@ -138,7 +174,7 @@ export function CreateWorkspacePage() {
         description: "Company updated successfully.",
         variant: "success"
       })
-      navigate("/create-workspace")
+      await refetchCompanies()
     } catch (error) {
       console.error("Error updating company:", error)
       toast({
@@ -233,7 +269,7 @@ export function CreateWorkspacePage() {
                 <Button variant="outline" onClick={() => setIsCreatingNewCompany(false)}>
                   Cancel
                 </Button>
-                <Button variant="ghost" onClick={handleCreateWorkspace}>
+                <Button variant="ghost" onClick={handleCreateCompany}>
                   Save
                 </Button>
               </div>
@@ -263,6 +299,7 @@ export function CreateWorkspacePage() {
                 </Button>
               </div>
             )}
+            {error && <p className="text-red-500">{error}</p>}
           </div>
         </CardContent>
         <CardFooter className="space-x-4">
@@ -279,7 +316,7 @@ export function CreateWorkspacePage() {
 
       {isUpdatingCompany && (
         <Dialog open={isUpdatingCompany} onOpenChange={setIsUpdatingCompany}>
-          <DialogContent>
+          <DialogContent className="bg-white dark:bg-gray-800">
             <DialogHeader>
               <DialogTitle>Update Company</DialogTitle>
             </DialogHeader>

@@ -1,12 +1,19 @@
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef, useMemo } from "react"
 import { useLocation, useParams, useNavigate } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/context/AuthContext"
 import { WorkspaceDetails, WorkspaceUserWithDetails } from "@/api/WorkspaceUsers"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Loader2, Pen, Plus } from "lucide-react"
-import { Project, useProjects, useAddProject, NewProject } from "@/hooks/projectHook"
+import { Loader2, Trash, Pen, Plus } from "lucide-react"
+import {
+  Project,
+  useProjects,
+  useAddProject,
+  NewProject,
+  convertDateFormat
+} from "@/hooks/projectHook"
+import { ProjectDialog } from "@/components/projectOperations/ProjectDialog"
 import {
   Dialog,
   DialogContent,
@@ -42,14 +49,19 @@ import { useWorkspace } from "@/context/WokspaceContext"
 import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
 import { useGetAllUsers } from "@/hooks/useFetchUser"
 import { useWorkspaceDetails } from "@/hooks/useWorkspaceDetails"
+import { useQueryClient } from "@tanstack/react-query"
 
 export function WorkspaceDetailsPage() {
+  const queryClient = useQueryClient()
   const { workspaceId: urlWorkspaceId } = useParams<{ workspaceId: string }>()
   const { setWorkspaceId, pinProject } = useWorkspace()
   const { workspaces, userId, updateWorkspaceDetails } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const { toast } = useToast()
+  const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false)
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [dialogType, setDialogType] = useState<"update" | "delete">("update")
   const { workspace: initialWorkspace } = location.state || {}
   const [currentWorkspaceId, setCurrentWorkspaceId] = useState<string | undefined>(
     urlWorkspaceId || undefined
@@ -71,7 +83,7 @@ export function WorkspaceDetailsPage() {
     workspaceId: currentWorkspaceId || initialWorkspace?.id || "",
     status: true
   })
-  const { data: projectsResponse, isLoading, error, refetch } = useProjects()
+  const { data: projectsResponse, isLoading, error, refetch: refetchProjects } = useProjects()
 
   const addProjectMutation = useAddProject()
   const { data: workspaceDetails, refetch: refetchWorkspaceDetails } = useWorkspaceDetails(
@@ -88,6 +100,16 @@ export function WorkspaceDetailsPage() {
 
   const workspaceIdDd = currentWorkspaceId || sessionStorage.getItem("currentWorkspaceId")
 
+  // Filter active projects for the current workspace
+  const projects = useMemo(() => {
+    if (projectsResponse?.data && urlWorkspaceId) {
+      return projectsResponse.data.filter(
+        (project) => project.workspaceId === urlWorkspaceId && project.status === true
+      )
+    }
+    return []
+  }, [projectsResponse, urlWorkspaceId])
+
   useEffect(() => {
     if (urlWorkspaceId) {
       setWorkspaceId(urlWorkspaceId)
@@ -99,7 +121,7 @@ export function WorkspaceDetailsPage() {
     isLoading: isLoadingMembers,
     error: membersError,
     refetch: refetchMembers
-  } = useWorkspaceMembersByWorkspace(workspaceIdDd || "")
+  } = useWorkspaceMembersByWorkspace(urlWorkspaceId || "")
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -245,6 +267,29 @@ export function WorkspaceDetailsPage() {
       })
   }
 
+  const handleCloseProjectDialog = () => {
+    setIsProjectDialogOpen(false)
+    setSelectedProject(null)
+  }
+
+  const handleProjectUpdated = () => {
+    queryClient.invalidateQueries({ queryKey: ["projects"] })
+    refetchProjects()
+    setSelectedProject(null)
+    setIsProjectDialogOpen(false)
+  }
+
+  const handleOpenUpdateProjectDialog = (project: Project) => {
+    setSelectedProject(project)
+    setDialogType("update")
+    setIsProjectDialogOpen(true)
+  }
+
+  const handleOpenDeleteProjectDialog = (project: Project) => {
+    setSelectedProject(project)
+    setDialogType("delete")
+    setIsProjectDialogOpen(true)
+  }
   const handleAddProject = () => {
     if (!isAdmin) {
       toast({
@@ -260,18 +305,6 @@ export function WorkspaceDetailsPage() {
   const handleAddProjectSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!workspace) return
-
-    const convertDateFormat = (dateString: string) => {
-      if (!dateString) return ""
-      const [year, month, day] = dateString.split("-").map(Number)
-      if (!year || !month || !day) {
-        return ""
-      }
-      const date = new Date(year, month - 1, day)
-      // Set a specific time if needed, here we set it to 20:22:53.802
-      date.setHours(20, 22, 53, 802)
-      return date.toISOString()
-    }
 
     const newProjectStartDate = convertDateFormat(newProject?.startDate || "")
     const currentDate = new Date().toISOString()
@@ -340,7 +373,7 @@ export function WorkspaceDetailsPage() {
         <AlertTitle>Error</AlertTitle>
         <AlertDescription>
           {(error as Error).message}
-          <Button onClick={() => refetch()} className="mt-2">
+          <Button onClick={() => refetchProjects()} className="mt-2">
             Retry
           </Button>
           <Button onClick={() => navigate(-1)} className="mt-2 ml-2">
@@ -349,9 +382,6 @@ export function WorkspaceDetailsPage() {
         </AlertDescription>
       </Alert>
     )
-
-  const projects =
-    projectsResponse?.data.filter((project) => project.workspaceId === workspace.id) || []
 
   const renderMembersTable = () => (
     <Table>
@@ -375,18 +405,18 @@ export function WorkspaceDetailsPage() {
   )
 
   const handleViewProject = (projectId: string, projectName: string) => {
-    if (projectId && projectName) {
-      if (workspaceIdDd) {
-        pinProject({ workspaceId: workspaceIdDd, id: projectId, name: projectName })
+    if (projectId) {
+      if (urlWorkspaceId) {
+        pinProject({ workspaceId: urlWorkspaceId, id: projectId, name: projectName })
       }
-      navigate(`/workspaces/${workspaceIdDd}/${projectId}/projects`, {
+      navigate(`/workspaces/${urlWorkspaceId}/${projectId}/projects`, {
         state: { workspaceName: workspace.name, projectName }
       })
     }
   }
 
   return (
-    <div className={`container mx-auto p-4 ${isEditDialogOpen ? "overflow-hidden h-screen" : ""}`}>
+    <div className={`container mx-auto p-4 ${isEditDialogOpen}`}>
       <Card className="mb-6">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
@@ -444,6 +474,22 @@ export function WorkspaceDetailsPage() {
               <Card key={project.id} className="project-card">
                 <CardHeader>
                   <CardTitle>{project.name}</CardTitle>
+                  <div className="flex space-x-2">
+                    <Button
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                      onClick={() => handleOpenUpdateProjectDialog(project)}
+                    >
+                      <Pen className="h-4 w-4 mr-2" />
+                      <span className="hidden group-hover:inline">Update</span>
+                    </Button>
+                    <Button
+                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                      onClick={() => handleOpenDeleteProjectDialog(project)}
+                    >
+                      <Trash className="h-4 w-4 mr-2" />
+                      <span className="hidden group-hover:inline">Delete</span>
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-600 mb-2">{project.description}</p>
@@ -456,6 +502,7 @@ export function WorkspaceDetailsPage() {
                     className="mt-4 bg-[#efb6c8] text-white px-4 py-2 rounded hover:bg-[#dba4b3]"
                     variant="outline"
                     onClick={() => handleViewProject(project.id, project.name)}
+                    title="Recommendation: Pin projects from the same workspace"
                   >
                     View Project Board
                   </Button>
@@ -465,7 +512,15 @@ export function WorkspaceDetailsPage() {
           </div>
         </div>
       )}
-
+      {selectedProject && (
+        <ProjectDialog
+          project={selectedProject}
+          type={dialogType}
+          onClose={handleCloseProjectDialog}
+          onProjectUpdated={handleProjectUpdated}
+          isOpen={isProjectDialogOpen}
+        />
+      )}
       <>
         <Button variant="ghost" onClick={() => setIsAddProjectDialogOpen(true)}>
           Add Project

@@ -21,14 +21,14 @@ export interface TaskResponse {
   data: Task[]
   status: string
   code: number
-  errors: null | any
+  errors: null | unknown
 }
 
 export interface UpdatedTaskResponse {
   data: Task
   status: string
   code: number
-  errors: null | any
+  errors: null | unknown
 }
 
 export const fetchTasks = async (projectId: string): Promise<TaskResponse> => {
@@ -55,7 +55,7 @@ export const useTasks = (projectId: string) => {
 export const updateTask = async (taskId: string, updatedTask: Partial<Task>): Promise<Task> => {
   try {
     const response = await api.put<UpdatedTaskResponse>(`/tasks/${taskId}`, updatedTask)
-    return response.data.data // Extract the Task object from the response
+    return response.data.data
   } catch (error) {
     console.error("Error updating task:", error)
     throw error

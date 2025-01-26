@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom"
-import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { HelpCircle, Moon, Sun } from "lucide-react"
 import { useTheme } from "@/context/ThemeContext"
@@ -25,7 +24,6 @@ export function Header() {
             VisionBoard
           </Link>
         </div>
-        {/* add this only when authenticated */}
         {isAuthenticated && (
           <div className="relative z-10">
             <WorkspacePage />
@@ -34,7 +32,7 @@ export function Header() {
       </div>
 
       <div className="flex-1 max-w-md mx-4">
-        <Input type="text" placeholder="Search..." className="w-full" />
+        <p className="app-heading animate-bounce">Project Management Application</p>
       </div>
 
       <div className="flex items-center space-x-4">

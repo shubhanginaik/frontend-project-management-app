@@ -19,7 +19,7 @@ export function Sidebar() {
     if (workspaceId) {
       navigate(`/workspaces/${workspaceId}/members`)
     } else {
-      console.error("Workspace ID not found")
+      console.error("No workspace found")
     }
   }
 
@@ -42,11 +42,6 @@ export function Sidebar() {
           <button onClick={handleMembersClick}>Workspace Members</button>
         </li>
 
-        {/* <li>
-          <NavLink to="/role" className={({ isActive }) => (isActive ? "active" : "")}>
-            Role Management
-          </NavLink>
-        </li> */}
         <li>
           <div className="pinned-projects">
             <div className="flex items-center">

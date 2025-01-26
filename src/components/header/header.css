@@ -2,40 +2,58 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px; /* Equivalent to 16 Tailwind units */
-  height: 40px; /* Equivalent to 16 Tailwind units */
-  border-radius: 5px; /* Makes the shape round */
-  background-color: #2a679d; /* Your desired background color */
-  color: white; /* Text color */
-  font-size: 0.2rem; /* Equivalent to Tailwind's text-lg */
-  font-weight: 600; /* Equivalent to Tailwind's font-semibold */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow */
-  text-decoration: none; /* Removes the underline */
-  transition: background-color 0.3s ease; /* Smooth hover effect */
+  width: 60px;
+  height: 40px;
+  border-radius: 5px;
+  background-color: #2a679d;
+  color: white;
+  font-size: 0.2rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  transition: background-color 0.3s ease;
 }
 
 .round-link:hover {
-  background-color: #23867a; /* Darker color on hover */
+  background-color: #23867a;
 }
 
 .btnlogout {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60px; /* Equivalent to 16 Tailwind units */
-  height: 40px; /* Equivalent to 16 Tailwind units */
-  border-radius: 5px; /* Makes the shape round */
-  background-color: #2a679d; /* Your desired background color */
-  color: white; /* Text color */
-  font-size: 0.2rem; /* Equivalent to Tailwind's text-lg */
-  font-weight: 600; /* Equivalent to Tailwind's font-semibold */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adds a shadow */
-  text-decoration: none; /* Removes the underline */
-  transition: background-color 0.3s ease; /* Smooth hover effect */
+  width: 60px;
+  height: 40px;
+  border-radius: 5px;
+  background-color: #2a679d;
+  color: white;
+  font-size: 0.2rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  transition: background-color 0.3s ease;
 }
 .btnlogout:hover {
-  background-color: #23867a; /* Darker color on hover */
+  background-color: #23867a;
 }
 .btnclose {
   background-color: #2a679d;
+}
+.app-heading {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2a679d;
+}
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s infinite;
 }

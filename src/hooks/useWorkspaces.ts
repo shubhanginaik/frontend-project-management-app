@@ -38,7 +38,7 @@ const createWorkspace = async (
 ): Promise<WorkspaceResponse> => {
   const response = await api.post<WorkspaceResponse>("/workspaces", workspaceData)
   return response.data
-} // 👈 This function is used to create a new workspace, add error handling here
+}
 
 export const useCreateWorkspace = () => {
   const queryClient = useQueryClient()

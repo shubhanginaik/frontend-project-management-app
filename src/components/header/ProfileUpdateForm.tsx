@@ -41,7 +41,6 @@ export function ProfileUpdateForm() {
         description: "Failed to update profile. Please try again.",
         variant: "destructive"
       })
-      console.error("Failed to update profile:", error)
     }
   }
 

@@ -30,7 +30,12 @@ export function LoginForm() {
       // No navigation here, as workspaces are fetched in the background
     } catch (err: unknown) {
       console.error("Login error:", err)
-      setError(err.response?.data?.message || "Login failed!")
+      if (err instanceof Error) {
+        const errorMessage = "An error occurred while login. Please try again."
+        setError(errorMessage)
+      } else {
+        setError("An error occurred. Please try again.")
+      }
     }
   }
 
