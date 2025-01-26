@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-import { FaEllipsisV } from "react-icons/fa"
 
 interface DropdownMenuProps {
   onEdit: () => void

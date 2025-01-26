@@ -25,7 +25,6 @@ api.interceptors.request.use(
         return Promise.reject(new Error("Token is expired"))
       }
 
-      // Skip adding the Authorization header for the login and signup requests
       if (!config.url?.includes("/auth/login") && !config.url?.includes("/auth/signup")) {
         config.headers.Authorization = `Bearer ${token}`
         if (workspaces) {

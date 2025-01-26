@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react"
 import { useQueryClient, useMutation } from "@tanstack/react-query"
-import jwtDecode from "jwt-decode"
 import api from "@/api"
 import {
   fetchWorkspaceUsers,
@@ -8,13 +7,6 @@ import {
   WorkspaceDetailsResponse
 } from "@/api/WorkspaceUsers"
 import { updateUserProfile as updateUserProfileApi } from "@/api/memberProfile"
-
-interface DecodedToken {
-  sub: string // This is the email
-  iat: number
-  exp: number
-}
-
 interface UserData {
   id: string
   email: string

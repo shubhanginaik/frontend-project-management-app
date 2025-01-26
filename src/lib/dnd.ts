@@ -44,7 +44,6 @@ export const coordinateGetter: KeyboardCoordinateGetter = (
             return
           }
           if (collisionRect.top < rect.top) {
-            // find all droppable areas below
             filteredContainers.push(entry)
           }
           break
@@ -64,7 +63,6 @@ export const coordinateGetter: KeyboardCoordinateGetter = (
           }
           break
         case KeyboardCode.Right:
-          // find all droppable areas to right
           if (collisionRect.left + collisionRect.width <= rect.left) {
             filteredContainers.push(entry)
           }

@@ -275,8 +275,8 @@ export function WorkspaceDetailsPage() {
   const handleProjectUpdated = () => {
     queryClient.invalidateQueries({ queryKey: ["projects"] })
     refetchProjects()
-    setSelectedProject(null) // Clear selected project to avoid stale state
-    setIsProjectDialogOpen(false) // Ensure dialog closes
+    setSelectedProject(null)
+    setIsProjectDialogOpen(false)
   }
 
   const handleOpenUpdateProjectDialog = (project: Project) => {
@@ -502,6 +502,7 @@ export function WorkspaceDetailsPage() {
                     className="mt-4 bg-[#efb6c8] text-white px-4 py-2 rounded hover:bg-[#dba4b3]"
                     variant="outline"
                     onClick={() => handleViewProject(project.id, project.name)}
+                    title="Recommendation: Pin projects from the same workspace"
                   >
                     View Project Board
                   </Button>

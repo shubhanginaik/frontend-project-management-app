@@ -16,8 +16,15 @@ export function HelpInfoForm() {
       </p>
       <h2 className="text-xl font-bold mt-4 mb-4">Key Steps in the User Journey:</h2>
       <p>
-        <strong>Registration & Login:</strong> Users register and login using their email and
-        password.
+        <strong>Registration</strong> Users register and login using their email and password. If a
+        user is logged in for the first time, they are prompted to create a profile(click on your
+        name to update your profile). Start creating new workspaces, Compeny, projects, and tasks.
+        User can create new members and assign them to the workspaces through the members page.
+      </p>
+      <p>
+        <strong>Login</strong> Users can log in using their email and password. He can see all his
+        workspaces and projects. He is allowed to add new workspaces, projects, and tasks. He is
+        allowed to add new members and assign them to the workspaces(he is owner of).
       </p>
       <p>
         <strong>User Management:</strong> Users can manage their profiles, update personal
@@ -37,8 +44,7 @@ export function HelpInfoForm() {
         projects.
       </p>
       <p>
-        <strong>Notifications:</strong> Users receive notifications related to tasks (comment,
-        attach doc).
+        <strong>Notifications:</strong> Users receive notifications related to tasks (comment).
       </p>
     </div>
   )

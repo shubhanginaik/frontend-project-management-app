@@ -73,7 +73,9 @@ export function Home() {
                 <Clipboard className="h-12 w-12 mb-2" />
                 <p>You have {totalWorkspaces} active workspaces</p>
               </div>
-              <Button onClick={() => navigate("/dashboard")}>Go to Dashboard</Button>
+              <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+                Go to Dashboard
+              </Button>
             </div>
           </CardContent>
         </Card>

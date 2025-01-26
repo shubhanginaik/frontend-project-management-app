@@ -56,8 +56,28 @@ export function CreateWorkspacePage() {
   const [updatingCompanyName, setUpdatingCompanyName] = useState("")
   const [isCreatingNewCompany, setIsCreatingNewCompany] = useState(false)
   const [isUpdatingCompany, setIsUpdatingCompany] = useState(false)
+  const [error, setError] = useState("")
 
+  const validateForm = () => {
+    if (!workspaceName) {
+      setError("Workspace name is required.")
+      return false
+    }
+    if (!workspaceDescription) {
+      setError("Workspace description is required.")
+      return false
+    }
+    if (!workspaceType) {
+      setError("Workspace type is required.")
+      return false
+    }
+    setError("")
+    return true
+  }
   const handleCreateWorkspace = async () => {
+    if (!validateForm()) {
+      return
+    }
     if (!userId || (!selectedCompanyId && !newCompanyName)) return
 
     let companyId = selectedCompanyId
@@ -263,6 +283,7 @@ export function CreateWorkspacePage() {
                 </Button>
               </div>
             )}
+            {error && <p className="text-red-500">{error}</p>}
           </div>
         </CardContent>
         <CardFooter className="space-x-4">

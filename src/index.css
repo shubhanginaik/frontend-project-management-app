@@ -3,20 +3,16 @@
 @import "tailwindcss/utilities";
 
 :root {
-  /* --background-color: white; */
   --background-color: #e7e1eb;
   --text-color: rgb(26, 25, 25);
-  /* --button-background-color: #2a679d; */
   --button-background-color: #a888b5;
   --button-border-radius: 5px;
   --button-text-color: white;
 }
 
 .light-theme {
-  /* --background-color: white; */
   --background-color: #e7e1eb;
   --text-color: rgb(26, 25, 25);
-  /* --button-background-color: #2a679d; */
   --button-background-color: #a888b5;
   --button-border-radius: 5px;
   --button-text-color: white;
@@ -24,10 +20,8 @@
 }
 
 .dark-theme {
-  /* --background-color: #000957; */
   --background-color: rgb(51, 49, 49);
   --text-color: rgb(38, 124, 156);
-  /* --button-background-color: rgb(208, 155, 56); */
   --button-background-color: rgb(38, 124, 156);
   --sidebar-background-color: rgb(75, 73, 73);
   --button-border-radius: 5px;
@@ -45,6 +39,7 @@ button {
   color: var(--button-text-color);
   border-radius: var(--button-border-radius);
 }
+/* uncomment once you deploy and remove npm module and reinstall and then will get latest installed dependencies*/
 /* @layer components {
   .app-container {
     @apply w-full max-w-full mx-auto px-4;

@@ -9,8 +9,6 @@ import { useFetchRoles } from "@/hooks/useFetchRoles"
 import { Loader2 } from "lucide-react"
 import "./createMember.css"
 import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
-import { useAuth } from "@/context/AuthContext"
-import { useGetWorkspaceUser } from "@/hooks/useWorkspaces"
 import { useToast } from "../ui/use-toast"
 
 interface CreateMemberFormProps {
@@ -25,7 +23,6 @@ export function CreateMemberForm({ workspaceId, onClose, refetchMembers }: Creat
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const navigate = useNavigate()
-  const { userId } = useAuth()
   const { toast } = useToast()
   const {
     mutate: createUser,
@@ -36,25 +33,8 @@ export function CreateMemberForm({ workspaceId, onClose, refetchMembers }: Creat
   const { data: rolesData, isLoading: isFetchingRoles } = useFetchRoles()
   const { mutate: addUserToWorkspace, isPending: isAddingUserToWorkspace } = useAddUserToWorkspace()
 
-  const {
-    data: workspaceUserData,
-    isLoading: isCheckingAdmin,
-    error: adminError
-  } = useGetWorkspaceUser(userId!, workspaceId)
-
-  const adminRole = rolesData?.data?.find((role) => role.name === "ADMIN")
-  const adminRoleId = adminRole?.id
-  const isAdmin = workspaceUserData?.data?.roleId === adminRoleId
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // if (!isAdmin) {
-    //   toast({
-    //     title: "Permission Denied",
-    //     description: "Only admins can add members",
-    //     variant: "destructive"
-    //   })
-    //   return
-    // }
 
     createUser(
       { firstName, lastName, email, password, phone: "4053642524", profileImage: "", url: "" },

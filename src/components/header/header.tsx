@@ -25,7 +25,6 @@ export function Header() {
             VisionBoard
           </Link>
         </div>
-        {/* add this only when authenticated */}
         {isAuthenticated && (
           <div className="relative z-10">
             <WorkspacePage />

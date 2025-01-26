@@ -5,14 +5,12 @@ import { Home } from "@/pages/home/home"
 import { WorkspaceProvider } from "@/context/WokspaceContext"
 import { LoginPage } from "@/pages/login"
 import { DashboardPage } from "@/pages/Dashboard"
-//import { RoleManagement } from "@/pages/dashboard/role-management"
 import { SignupPage } from "@/pages/signup"
 import { CreateWorkspacePage } from "@/pages/dashboard/workspaceDash/CreateWorkspacePage"
 import { WorkspaceDetailsPage } from "@/pages/dashboard/workspaceDash/WorkspaceDetailsPage"
 import { Header } from "@/components/header/header"
 import { Sidebar } from "@/components/sidebar/Sidebar"
 import "./App.css"
-import { Profile } from "./components/Profile"
 import { ProjectBoardPage } from "./pages/dashboard/boards/ProjectBoardsPage"
 import { MembersPage } from "./pages/dashboard/workspaceDash/members/WorkspaceMembersPage"
 import { Toaster } from "./components/ui/toaster"
@@ -66,22 +64,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ProjectBoardPage />
-          </ProtectedRoute>
-        }
-      />
-      {/* <Route
-        path="/role"
-        element={
-          <ProtectedRoute>
-            <RoleManagement />
-          </ProtectedRoute>
-        }
-      /> */}
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Profile />
           </ProtectedRoute>
         }
       />

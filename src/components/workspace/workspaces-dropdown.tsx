@@ -19,8 +19,6 @@ export function WorkspacesDropdown() {
   const navigate = useNavigate()
   const { isAuthenticated, workspaces } = useAuth()
 
-  console.log("From dropdown: workspaces", workspaces)
-
   const handleWorkspaceSelect = (workspaceId: string) => {
     const selectedWorkspace = workspaces.find((workspace) => workspace.data.id === workspaceId)
     if (selectedWorkspace) {

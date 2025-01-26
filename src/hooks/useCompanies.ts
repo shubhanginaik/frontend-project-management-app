@@ -31,7 +31,7 @@ const fetchCompanies = async (userId: string): Promise<Company[]> => {
   const response = await api.get<CompanyResponse>("/companies")
   const companies = response.data.data
   console.log(response.data.errors)
-  // Filter companies created by the logged-in user
+
   return companies.filter((company) => company.createdBy === userId)
 }
 
@@ -63,7 +63,6 @@ export const useCreateCompany = () => {
   })
 }
 
-//updateCompany
 export const updateCompany = async (
   companyId: string,
   companyData: { name: string; createdBy: string }

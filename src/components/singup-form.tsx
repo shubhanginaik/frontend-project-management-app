@@ -49,19 +49,19 @@ export function SignupForm() {
           navigate("/login")
         }, 2000)
       } else {
-        setError("Unexpected response structure")
+        const errorData = response.data
+        if (errorData && errorData.message) {
+          setError(`Sign up failed: ${errorData.message}`)
+        } else {
+          setError("Sign up failed. Please check your email and password and try again.")
+        }
       }
     } catch (err: unknown) {
-      console.error("API call error", err)
-      if (err.response) {
-        console.error("Response data:", err.response.data)
-        console.error("Response status:", err.response.status)
-        console.error("Response headers:", err.response.headers)
-      }
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message)
+      console.error("Sign up error:", err)
+      if (err instanceof Error) {
+        setError("Sign up failed. Please try again.")
       } else {
-        setError("An unexpected error occurred")
+        setError("Sign up failed. Please try again.")
       }
     }
   }
@@ -130,14 +130,10 @@ export function SignupForm() {
                 required
               />
             </div>
-            {error && <p className="text-destructive">{error}</p>}
+            {error && <p className="text-red-500">{error}</p>}
             {success && <p className="text-success">{success}</p>}
             <div className="flex justify-center">
-              <Button
-                type="submit"
-                className="px-8"
-                variant={theme === "dark" ? "rgb(38,124,156)" : "#a888b5"}
-              >
+              <Button type="submit" variant="ghost" className="px-8">
                 Sign Up
               </Button>
             </div>

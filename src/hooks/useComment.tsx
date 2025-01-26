@@ -8,7 +8,7 @@ export const useComments = (taskId: string) => {
       const allComments = await fetchComments()
       return allComments.filter((comment) => comment.taskId === taskId)
     },
-    enabled: !!taskId // Only run the query if taskId is provided
+    enabled: !!taskId
   })
 }
 
