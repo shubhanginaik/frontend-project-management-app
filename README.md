@@ -8,6 +8,10 @@ This application allows users to manage workspaces, companies, projects, tasks, 
 
 The current template tech stack: React, TypeScript, Tailwind, Shadcn, tanstack/react-query.
 
+## Live Demo
+
+Check out the live version of the app here: [Project Management app](https://shubhanginaik-fs19-frontend-pma.vercel.app/)
+
 ![App screenshot](./public/workspaceDetails.png)
 
 ## Requirements
