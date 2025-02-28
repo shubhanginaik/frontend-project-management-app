@@ -17,11 +17,11 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select"
-import { Task } from "@/hooks/taskHook"
+import { Task } from "@/api/tasks"
 import { useUpdateTask } from "@/hooks/taskHook"
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
-import { useAddComment, useComments } from "@/hooks/useComment"
+import { useAddComment, useComments } from "@/hooks/commentsHook"
 import { Comment } from "@/api/comments"
 import { useAuth } from "@/context/AuthContext"
 import { useActivityLogs } from "@/hooks/activityLogs"
