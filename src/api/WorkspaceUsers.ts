@@ -1,5 +1,5 @@
 import api from "@/api"
-import { fetchRoleDetails } from "@/hooks/useRole"
+import { fetchRoleDetails } from "@/api/roles"
 import { useQuery } from "@tanstack/react-query"
 
 export interface WorkspaceUserWithDetails extends WorkspaceUsersByWorkspaceId, Users {

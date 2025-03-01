@@ -44,7 +44,8 @@ import {
   TableRow
 } from "@/components/ui/table"
 import "./styles/workspaceDetailsPage.css"
-import { fetchAllRoles, fetchRoleDetails, Role } from "@/hooks/useRole"
+import { fetchAllRoles, fetchRoleDetails, Role } from "@/api/roles"
+import { fetchRoles } from "@/api/roles"
 import { useWorkspace } from "@/context/WokspaceContext"
 import { useAddUserToWorkspace } from "@/hooks/useAddUserToworkspace"
 import { useGetAllUsers } from "@/hooks/useFetchUser"

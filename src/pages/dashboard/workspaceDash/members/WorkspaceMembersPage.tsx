@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Modal } from "@/components/ui/Modal"
 import { CreateMemberForm } from "@/components/members/CreateMember-form"
-import { fetchRoleDetails } from "@/hooks/useRole"
+import { fetchRoleDetails } from "@/api/roles"
 import {
   fetchUserDetails,
   getWorkspaceUserByWorkspaceIdAndUserId,
