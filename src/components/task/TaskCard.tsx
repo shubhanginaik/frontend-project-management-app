@@ -2,7 +2,7 @@ import React from "react"
 import { Draggable } from "@hello-pangea/dnd"
 import { Card, CardContent } from "@/components/ui/card"
 import { Paperclip } from "lucide-react"
-import { Task } from "@/hooks/taskHook"
+import { Task } from "@/api/tasks"
 
 interface TaskCardProps {
   task: Task

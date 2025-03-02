@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Task } from "@/hooks/taskHook"
+import { Task } from "@/api/tasks"
 import { Droppable, Draggable } from "@hello-pangea/dnd"
 
 interface TaskColumnProps {
