@@ -51,22 +51,20 @@ export function TaskDetailsDialog({
   const updateTaskMutation = useUpdateTask()
   const addCommentMutation = useAddComment()
   const { data: comments = [], refetch } = useComments(task?.id || "")
-  const {
-    data: activitiesData,
-    error: activitiesError,
-    isLoading: isLoadingActivities
-  } = useActivityLogs(task?.id || "")
+  const { userId } = useAuth()
+  const { data: membersData, refetch: refetchMembers } = useWorkspaceMembersByWorkspace(workspaceId)
+
   const [assignedUserId, setAssignedUserId] = useState<string | null>(task?.assignedUserId || null)
   const [taskDetails, setTaskDetails] = useState<Partial<Task>>({})
   const [newComment, setNewComment] = useState<string>("")
-  const { userId } = useAuth()
-  const { data: membersData, refetch: refetchMembers } = useWorkspaceMembersByWorkspace(workspaceId)
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null)
 
   useEffect(() => {
     if (task) {
       setAssignedUserId(task.assignedUserId)
       setTaskDetails(task)
       refetch()
+      setSelectedTaskId(task.id)
     }
   }, [task, refetch])
 
@@ -148,6 +146,12 @@ export function TaskDetailsDialog({
     const user = membersData?.find((member) => member.userId === userId)
     return user ? `${user.firstName} ${user.lastName}` : "Unknown User"
   }
+
+  const {
+    data: activitiesData,
+    error: activitiesError,
+    isLoading: isLoadingActivities
+  } = useActivityLogs(selectedTaskId || "")
 
   if (!task) return null
 
