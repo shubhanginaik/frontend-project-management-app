@@ -22,7 +22,6 @@ import { useUpdateTask } from "@/hooks/taskHook"
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { useAddComment, useComments } from "@/hooks/commentsHook"
-import { Comment } from "@/api/comments"
 import { useAuth } from "@/context/AuthContext"
 import { useActivityLogs } from "@/hooks/activityLogs"
 import { useWorkspaceMembersByWorkspace } from "@/api/WorkspaceUsers"
@@ -120,10 +119,10 @@ export function TaskDetailsDialog({
 
   const handleAddComment = () => {
     if (task && newComment.trim()) {
-      const comment: Omit<Comment, "id"> = {
-        taskId: task.id,
+      const comment = {
         content: newComment,
-        createdBy: userId!
+        createdBy: userId!,
+        taskId: task.id
       }
       addCommentMutation.mutate(comment, {
         onSuccess: () => {
@@ -292,8 +291,13 @@ export function TaskDetailsDialog({
                       {getUserName(comment.createdBy).charAt(0).toUpperCase()}
                     </div>
                   </div>
-                  <p>{getUserName(comment.createdBy)}</p>
-                  <p>{comment.content}</p>
+                  <div>
+                    <p className="font-semibold">{getUserName(comment.createdBy)}</p>
+                    <p>{comment.content}</p>
+                    <p className="text-xs text-gray-500">
+                      {new Date(comment.createdDate).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
