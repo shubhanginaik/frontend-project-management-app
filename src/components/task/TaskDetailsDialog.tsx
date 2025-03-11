@@ -49,7 +49,7 @@ export function TaskDetailsDialog({
   const { toast } = useToast()
   const updateTaskMutation = useUpdateTask()
   const addCommentMutation = useAddComment()
-  const { data: comments = [], refetch } = useComments(task?.id || "")
+  const { data: comments, isLoading, isError, refetch } = useComments(task?.id ?? "")
   const { userId } = useAuth()
   const { data: membersData, refetch: refetchMembers } = useWorkspaceMembersByWorkspace(workspaceId)
 
@@ -105,7 +105,6 @@ export function TaskDetailsDialog({
             onUpdate(task.id, updatedTask)
           },
           onError: (error) => {
-            console.error("Error updating task:", error)
             toast({
               title: "Error",
               description: error.message || "Failed to update task. Please try again.",
@@ -130,7 +129,6 @@ export function TaskDetailsDialog({
           refetch()
         },
         onError: (error) => {
-          console.error("Error adding comment:", error)
           toast({
             title: "Error",
             description: error.message || "Failed to add comment. Please try again.",
@@ -284,22 +282,26 @@ export function TaskDetailsDialog({
               </Button>
             </div>
             <div className="mt-4 space-y-2">
-              {comments.map((comment) => (
-                <div key={comment.id} className="flex items-center space-x-2">
-                  <div className="flex-shrink-0">
-                    <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                      {getUserName(comment.createdBy).charAt(0).toUpperCase()}
+              {comments && comments.length > 0 ? (
+                comments.map((comment) => (
+                  <div key={comment.id} className="flex items-center space-x-2">
+                    <div className="flex-shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                        {getUserName(comment.createdBy).charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-semibold">{getUserName(comment.createdBy)}</p>
+                      <p>{comment.content}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(comment.createdDate).toLocaleString()}
+                      </p>
                     </div>
                   </div>
-                  <div>
-                    <p className="font-semibold">{getUserName(comment.createdBy)}</p>
-                    <p>{comment.content}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(comment.createdDate).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500">No comments yet.</p>
+              )}
             </div>
             <div className="mt-8">
               <h3>Activities</h3>

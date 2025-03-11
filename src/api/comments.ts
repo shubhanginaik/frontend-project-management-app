@@ -26,7 +26,7 @@ export const commentsResponseSchema = z.object({
   data: z.array(commentSchema),
   status: z.string(),
   code: z.number(),
-  errors: z.array(z.unknown())
+  errors: z.array(z.string()).nullable()
 })
 
 export const deleteCommentResponseSchema = z.object({
@@ -48,6 +48,14 @@ export const deleteComment = async (commentId: string): Promise<void> => {
 }
 
 export const fetchComments = async (): Promise<z.infer<typeof commentSchema>[]> => {
-  const response = await api.get("/comments")
-  return commentsResponseSchema.parse(response.data).data
+  try {
+    const response = await api.get("/comments")
+
+    // Parse the response with the updated schema
+    const parsedData = commentsResponseSchema.parse(response.data)
+
+    return parsedData.data
+  } catch (error) {
+    return []
+  }
 }
