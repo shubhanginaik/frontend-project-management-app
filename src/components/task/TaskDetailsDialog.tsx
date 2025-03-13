@@ -311,21 +311,24 @@ export function TaskDetailsDialog({
                 <p>Error loading activities: {activitiesError.message}</p>
               ) : (
                 <div className="flex flex-col space-y-2">
-                  {activitiesData?.data.map((activity) => (
-                    <div key={activity.id} className="flex items-center space-x-2">
-                      <div className="flex-shrink-0">
-                        <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                          {getUserName(activity.userId).charAt(0).toUpperCase()}
+                  {activitiesData?.data
+                    .slice()
+                    .reverse()
+                    .map((activity) => (
+                      <div key={activity.id} className="flex items-center space-x-2">
+                        <div className="flex-shrink-0">
+                          <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                            {getUserName(activity.userId).charAt(0).toUpperCase()}
+                          </div>
                         </div>
+                        <p>{getUserName(activity.userId)}</p>
+                        <p>{activity.action}</p>
+                        <p>
+                          <span>{activity.entityType}</span>
+                        </p>
+                        <p>{new Date(activity.createdDate).toLocaleString()}</p>
                       </div>
-                      <p>{getUserName(activity.userId)}</p>
-                      <p>{activity.action}</p>
-                      <p>
-                        <span>{activity.entityType}</span>
-                      </p>
-                      <p>{new Date(activity.createdDate).toLocaleString()}</p>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               )}
             </div>
