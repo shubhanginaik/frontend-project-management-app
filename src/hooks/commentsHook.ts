@@ -12,9 +12,11 @@ export const useComments = (taskId: string) => {
         return []
       }
 
-      const filteredComments = allComments.filter((comment) => {
-        return comment.taskId === taskId
-      })
+      const filteredComments = allComments
+        .filter((comment) => {
+          return comment.taskId === taskId
+        })
+        .reverse()
 
       return filteredComments
     },
